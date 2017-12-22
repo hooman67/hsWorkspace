@@ -193,39 +193,15 @@ public class BinaryTrees {
 		printPostOrder_Recursive(node.leftChild);
 		printPostOrder_Recursive(node.rightChild);
 		System.out.println(node.data);
-	}
-	static void printPostOrder_LinkedToParent(BinaryTreeNode<Integer> node){
-		/**Time O(n), space O(1)
-		 * This requires link to parent
-		 */
-		
-		BinaryTreeNode prev = node;
-		
-		while(node != null){
-			
-			while(prev != node.leftChild && prev != node.rightChild && node.leftChild != null)
-				node = node.leftChild;
-			
-			if(prev != node.leftChild)
-				System.out.println(node.data);
-			
-			if(prev != node.rightChild && node.rightChild != null){
-				prev = node;
-				node = node.rightChild;
-			}
-			else{
-				prev = node;
-				node = node.parent;
-			}
-		}
 	}	
 	static void printPostOrder_Stack(BinaryTreeNode<Integer> node) {
 		/**time O(n), space O(log(n)==h), but no visited field needed.
 		 * Problem: Print the elements in a BST in sorted order. So get inorder traversal of bst.
 		 * 
-		 * Sol: At each node if not null, put the right child (if not null) in the stack, then the node
-		 * itself, then move on to the left child of node. When node becomes null (sth doesnt have left 
-		 * child), when node is null, 
+		 * Sol: Uses two pointers, current is the peak of the stack, prev is the previously
+		 * visited node. At each node if not null, put the right child (if not null) in the stack, 
+		 * then the node itself, then move on to the left child of node. When node becomes null 
+		 * (sth doesnt have left child), pop the stack.
 		 */
 		// Check for empty tree
         if (node == null)
@@ -273,6 +249,31 @@ public class BinaryTrees {
             prev = current;
         }
     }
+	static void printPostOrder_LinkedToParent(BinaryTreeNode<Integer> node){
+		/**Time O(n), space O(1)
+		 * This requires link to parent
+		 */
+		
+		BinaryTreeNode prev = node;
+		
+		while(node != null){
+			
+			while(prev != node.leftChild && prev != node.rightChild && node.leftChild != null)
+				node = node.leftChild;
+			
+			if(prev != node.leftChild)
+				System.out.println(node.data);
+			
+			if(prev != node.rightChild && node.rightChild != null){
+				prev = node;
+				node = node.rightChild;
+			}
+			else{
+				prev = node;
+				node = node.parent;
+			}
+		}
+	}
 	
 	static void printBreadthFirst_Queue(BinaryTreeNode<Integer> root){
 		/**
@@ -588,7 +589,7 @@ public class BinaryTrees {
 		root.rightChild.rightChild.leftChild = new BinaryTreeNode(7);
 		root.rightChild.rightChild.rightChild = new BinaryTreeNode(9);
 		
-		postOrderIterative(root);
+		printPostOrder_Stack(root);
 		
 	}
 
