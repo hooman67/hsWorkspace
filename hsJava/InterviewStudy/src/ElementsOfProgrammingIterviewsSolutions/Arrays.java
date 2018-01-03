@@ -9,12 +9,63 @@ import java.util.function.ToLongFunction;
 
 public class Arrays {
 	/************START: return k biggest/smallest elements************/
-	static int[] getK_Elements_selectionRank(int[] in, int k, boolean biggest){
-		/**time O(n), space O(log n) due to recursion
-		 * Returns the k biggest or smallest elements of in
+	static int[] getLargestK_selectionRank(int[] ar, int k){
+		/**time O(n), space O(1) aside from few recursions.
+		 * 
+		 * Prob: return the largest K elements. where k = 1 means max element.
+		 * 
+		 * Sol: Find the kth largest using selection rank and then partition the array around it.
+		 * Selection rank: Partition around a random pivot, if index of pivot == k-1, then 
+		 * pivot is Kth largest element. If IndexOfPivot > k-1, then we are looking for the kth 
+		 * largest in ar[0:IndexOfPivot-1] if IndexOfPivot < k - 1, then we look 
+		 * in ar[IndexOfPivot+1, n-1]
+		 * 
+		 * The version that returns Kth largest element is in Searching.java
 		 */
-		//TODO
-		return null;
+		
+		int st = 0, end = ar.length - 1;
+		
+		while(st <= end){
+			//int randomPivot = ((int)Math.random()) % (ar.length);
+			Random randomNbGenerator = new Random();
+			int randomPivot = randomNbGenerator.nextInt(end - st + 1) + st;
+			int pivIndex = helper_partition(ar, st, end, randomPivot);
+			
+			if(pivIndex == k - 1)
+				//return ar[pivIndex]; this is the Kth largest element.
+				break;
+			else if(pivIndex > k - 1)
+				end = pivIndex - 1;
+			else
+				st = pivIndex + 1;
+		}
+		
+		
+		//Since ar is partitioned around the Kth largest element, just return the first k elements of ar.
+		int[] out = new int[k];
+		for(int i = 0; i < k; i++){
+			out[i] = ar[i];
+		}
+		
+		return out;
+	}
+	static int helper_partition(int[] ar, int st, int end, int pivotIndex){
+		/**Returns the index of the pivot in the reordered array. 
+		 */
+		int pivotValue = ar[pivotIndex], larger = st;
+		
+		//put pivot at the end for safe keeping
+		swapArrayElements(ar, pivotIndex, end);
+		
+		for(int i = st; i < end; i++){
+			if(ar[i] > pivotValue)
+				swapArrayElements(ar, i, larger++);
+		}
+		
+		//put pivot back in its place
+		swapArrayElements(ar, larger, end);
+		
+		return larger;
 	}
 	
 	static int[] getK_Elements_sort(int[] in, int k, boolean biggest){
@@ -120,10 +171,56 @@ public class Arrays {
 	
 	
 	/**************START: Dutch Partitioning an array******************/
-	static void dutchPartition(int[] ar, int pivotIndex){
+	static int dutchPartition_myVersion(int[] ar, int pivotIndex){
 		/**O(1) space, O(n) time. 
 		 * 
-		 * Prob: Partition based on 3 key values.Example(below piv, equal piv, above piv)
+		 * Prob: Partition based on 3 key values.Example(below piv, equal piv, above piv).
+		 *  
+		 * Returns the index of the pivot in the reordered array. Which == larger. 
+		 * Fixed the issue with Pivot being the last element with no duplicates present in bookVersion.
+		 * 
+		 * Sol: We keep the following groups during partitioning:
+		 * buttom group: ar[0 : smaller-1],
+		 * equal group: ar[smaller : equal -1],
+		 * top group: ar[ larger+1 : ar.length -1] 
+		 * unclassified group: ar[equal : larger] 
+		 */
+		
+		int smaller = 0, equal = 0, larger = ar.length - 2;
+		
+		int pivVal = ar[pivotIndex];
+		//put pivot at the end for safe keeping
+		swapArrayElements(ar, pivotIndex, ar.length - 1);
+		
+		//While there are unclassified elements. ar[equal] is the incoming unclassified element
+		while(equal <= larger){
+			if(ar[equal] < pivVal){
+				swapArrayElements(ar, smaller, equal);
+				smaller++;
+				equal++;
+			}
+			else if(ar[equal] == pivVal){
+				equal++;
+			}
+			else{//ar[equal] > pivVal
+				swapArrayElements(ar, equal, larger);
+				larger--;
+			}
+				
+		}
+		
+		//put pivot back in its place
+		swapArrayElements(ar, ++larger, ar.length - 1);
+		
+		return larger;
+	}
+	static void dutchPartition_bookVersion(int[] ar, int pivotIndex){
+		/**O(1) space, O(n) time. 
+		 * 
+		 * Prob: Partition based on 3 key values.Example(below piv, equal piv, above piv).
+		 * 
+		 * BookVersion: Has issues if the last element is the pivot and there are no elements 
+		 * equal to pivot. myVersion fixes this.
 		 * 
 		 * Sol: We keep the following groups during partitioning:
 		 * buttom group: ar[0 : smaller-1],

@@ -1,6 +1,7 @@
 package ElementsOfProgrammingIterviewsSolutions;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
@@ -496,11 +497,104 @@ public class Searching {
 	/******END: Find a cap, such that the sumOverI(min(ar[i],cap)) = budget ****/
 	
 	
+	/************START: return Kth largest element ************/
+	static int findKthLargest(int[] ar, int k){
+		/**time O(n), space O(1) aside from few recursions.
+		 * 
+		 * Prob: return the Kth largest element in an array where k = 1 means max element.
+		 * 
+		 * Sol: Partition around a random pivot, if index of pivot == k-1, then pivot is Kth largest 
+		 * element. If IndexOfPivot > k-1, then we are looking for the kth largest in ar[0:IndexOfPivot-1]
+		 * if IndexOfPivot < k - 1, then we look in ar[IndexOfPivot+1, n-1]
+		 */
+		
+		int st = 0, end = ar.length - 1;
+		
+		while(st <= end){
+			//int randomPivot = ((int)Math.random()) % (ar.length);
+			Random randomNbGenerator = new Random();
+			int randomPivot = randomNbGenerator.nextInt(end - st + 1) + st;
+			int pivIndex = helper_partition(ar, st, end, randomPivot);
+			
+			if(pivIndex == k - 1)
+				return ar[pivIndex];
+			else if(pivIndex > k - 1)
+				end = pivIndex - 1;
+			else
+				st = pivIndex + 1;
+		}
+		
+		return Integer.MIN_VALUE;
+	}
+	static int helper_partition(int[] ar, int st, int end, int pivotIndex){
+		/**Returns the index of the pivot in the reordered array. 
+		 */
+		int pivotValue = ar[pivotIndex], larger = st;
+		
+		//put pivot at the end for safe keeping
+		helper_swapArrayElements(ar, pivotIndex, end);
+		
+		for(int i = st; i < end; i++){
+			if(ar[i] > pivotValue)
+				helper_swapArrayElements(ar, i, larger++);
+		}
+		
+		//put pivot back in its place
+		helper_swapArrayElements(ar, larger, end);
+		
+		return larger;
+	}
+	static void helper_swapArrayElements(int[] ar, int first, int second){
+		int temp = ar[first];
+		ar[first] = ar[second];
+		ar[second] = temp;
+	}
+	/**************END: return Kth largest element ************/
+	
+	
+	/**********START: Find missing and duplicated integers **********/
+	static int[] findMissingAndDuplicatedInts_UsingSum(int[] ar){
+		/**time O(n), space O(n). But this is prone to overflow. Use XOR to resolve.
+		 *  
+		 * Prob: Given an array of integers from 0 to n-1, find the missing and duplicated integers.
+		 * Sequence must start at 0 and there must be only 1 duplicate and 1 missing value. 
+		 * 
+		 * Sol: Let Zn be the sequence of integers from 0 to n-1. Then: Sum(A) = Sum(Zn) + t - m.
+		 * And the sumOfSquaresOfElements(A) =  sumOfSquaresOfElements(Zn) + t^2 - m^2.
+		 * Find t-m and t^2 - m^2 directly by calculating sum(A)-sum(Zn) directly. Then Divide the two
+		 * do find t+m (i.e. factorize t^2 - m^2) then add and subtract to find m and t.
+		 */
+		int sum = 0, sqrSum = 0;
+		
+		for(int i = 0; i < ar.length; i++){
+			sum += i - ar[i];
+			sqrSum += i*i - ar[i]*ar[i];
+		}
+		
+		// 2m = (t+m)-(t-m)  = (t^2-m^2)/(t-m) - (t-m).   2t = (t+m) + (t-m)
+		return new int[]{(sqrSum/sum - sum)/2, (sqrSum/sum + sum)/2};
+	}
+	
+	static int[] findMissingAndDuplicatedInts_UsingXOR(int[] ar){
+		/**time O(n), space O(n). But this is prone to overflow. Use XOR to resolve. 
+		 * Prob: Given an array of integers, find the missing and duplicated ints. 
+		 * 
+		 * Sol: 
+		 */
+		//TODO
+		return null;
+	}
+	/************END: Find missing and duplicated integers **********/
+	
+	
 	
 	public static void main(String[] args){
-		//int[] ar = {90, 30, 100, 40, 20};
-		int[] ar = {20,30,40,90,100};
+		int[] ar = {1,3,4,4,5,6,7};
 
-		System.out.println(completionSearch(ar, 100));
+		int[] b = findMissingAndDuplicatedInts_UsingSum(ar);
+		
+		for(int a : b)
+		System.out.println(a);
+
 	}
 }
