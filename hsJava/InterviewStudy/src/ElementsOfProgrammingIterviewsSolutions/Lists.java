@@ -441,17 +441,20 @@ public class Lists {
 		
 		ListNode<Integer> forward = head, behind = head;
 		
-		while(forward != null && k-- >= 0)
+		//put fwd k + 1 spaces forward
+		while(forward != null && k >= 0){
 			forward = forward.next;
+			k--;
+		}
 		
-		if(k == 0){
+		if(k == 0){ // ended because forward == null
 			//The first element is the removal target (but we can't change that because java
 			//does passByRefrenceValue), so copy the next element over and skip it instead.
 			head.data = head.next.data;
 			head.next = head.next.next;
 			return;
 		}
-		else if(k > 0){
+		else if(k > 0){ // ended because forward == null
 			System.out.println("not enough nodes in list");
 			return;
 		}
@@ -534,14 +537,13 @@ public class Lists {
 		//pass1. Do nodes of the copy and modify nexts of original
 		ListNode<Integer> oldListPtr = head;
 		while(oldListPtr != null){
-			ListNode<Integer> restOldListPtr = oldListPtr.next;
+			ListNode<Integer> newNode = new ListNode<Integer>(oldListPtr.data);
+			newNode.next = oldListPtr.next;
 			
-			ListNode<Integer> temp = new ListNode<Integer>(oldListPtr.data);
-			//Get the new nodes
-			temp.next = oldListPtr.next;
-			oldListPtr.next = temp;
+			ListNode<Integer> temp = oldListPtr.next;
+			oldListPtr.next = newNode;
 			
-			oldListPtr = restOldListPtr;
+			oldListPtr = temp;
 		}
 		
 		//pass2 Do jumps of the copy using the nexts of original
@@ -610,11 +612,10 @@ public class Lists {
 	}
 	/******END: copy a list that has a jump field as well as next (i.e. a postings list)****/
 
-	
+
 	
 	
 	public static void main(String[] args) {
-		
 		ListNode<Integer> A = new ListNode<Integer>(0, new ListNode<Integer>(1, new ListNode<Integer>(2, new ListNode<Integer>(3,new ListNode<Integer>(4)))));
 		
 		ListNode<Integer> a =  new ListNode<Integer>(1);

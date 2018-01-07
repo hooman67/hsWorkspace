@@ -11,6 +11,7 @@ class BinaryTreeNode<T>{
 	
 	int sizeOfSubTree;
 //	int visited = -1;
+	int numberOfChilds = -1;
 
 	BinaryTreeNode(T val){
 		data = val;
@@ -559,6 +560,30 @@ public class BinaryTrees {
 	}
 	/*********END: Kth lowest Common Ancestor*************/
 	
+	
+	/*****START: Store the number of nodes (# of childs) under each node *****/
+	static int storeChildCounts(BinaryTreeNode n){
+		if(n == null)
+			return 0;
+		
+		int countLeft = storeChildCounts(n.leftChild);
+		int countRight = storeChildCounts(n.rightChild);
+		
+		n.numberOfChilds = countLeft + countRight;
+		
+		return n.numberOfChilds + 1; //count this one too
+	}
+	/*******END: Store the number of nodes (# of childs) under each node *****/
+	
+	
+	
+	static void kos(BinaryTreeNode n){
+		if(n == null)
+			return;
+		kos(n.leftChild);
+		System.out.println(n.data + " :  " + n.numberOfChilds);
+		kos(n.rightChild);
+	}
 	public static void main(String[] args) {
 		/*BinaryTreeNode<Integer> root = new BinaryTreeNode(4, null, 9);
 		
@@ -589,7 +614,8 @@ public class BinaryTrees {
 		root.rightChild.rightChild.leftChild = new BinaryTreeNode(7);
 		root.rightChild.rightChild.rightChild = new BinaryTreeNode(9);
 		
-		printPostOrder_Stack(root);
+		storeChildCounts(root);
+		kos(root);
 		
 	}
 

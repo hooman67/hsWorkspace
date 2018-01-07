@@ -226,7 +226,14 @@ public class Arrays {
 		 * buttom group: ar[0 : smaller-1],
 		 * equal group: ar[smaller : equal -1],
 		 * top group: ar[ larger+1 : ar.length -1] 
-		 * unclassified group: ar[equal : larger] 
+		 * unclassified group: ar[equal : larger]
+		 * 
+		 * Note on understanding the algo: 				
+		  		 * smaller always refers to an element we've already processes, (its always <= equal) 
+				 * so no need to visit its element after it gets swappes 
+				 * (i.e. we can safely increment equal). However, larger refers to an element we havent
+				 * seen before, so we cannot increment equal after swapping it with larger, we gotta
+				 * visit equal again
 		 */
 		
 		int smaller = 0, equal = 0, larger = ar.length - 1;
@@ -236,7 +243,7 @@ public class Arrays {
 			if(ar[equal] < ar[pivotIndex]){
 				swapArrayElements(ar, smaller, equal);
 				smaller++;
-				equal++;
+				equal++; 
 			}
 			else if(ar[equal] == ar[pivotIndex]){
 				equal++;
@@ -552,10 +559,11 @@ public class Arrays {
 	/******************END: MaxDifferences************************/
 	
 	
-	/******************START: Sum of Sub-array********************/
+	/***************START: Sub-array summed to target *****************/
 	static int numberOfSubArraysWithElementsLessThanK(int[] ar, int k){
 		/**time O(n), space O(1) 
-		 * Return the number of contiguous subArrays of ar, where all elements are < k
+		 * Prob: Return the number of contiguous subArrays in ar, where all elements are < k. 
+		 * Note: two adjacent elements < k, form 3 subarrays (two individuals 1 with both of them). 
 		 */
 		int count = 0;
 		int countStep = 0;
@@ -575,12 +583,13 @@ public class Arrays {
 	
 	static int numberThatCannotBeRepresentedAsSum(int[] ar){
 		/**time O(n), space O(1)
-		 * return the smallest integer than cannot be represented as sum of any elements of ar. 
-		 * Solution: a number that is smaller than element i, but is bigger than sum of all the 
-		 * elements before i
+		 * 
+		 * Prob: Given a sorted array, return the smallest integer than cannot be represented as sum of 
+		 * any elements of ar. 
+		 * 
+		 * Sol: a number that is smaller than element i, but bigger than sum of all the elements before i
 		 */
-		//smallest we can return
-		int out = 1;
+		int out = 1; //smallest we can return == sum+1
 		
 		for(int i =0; i < ar.length && ar[i] <= out; i++)
 			out += ar[i];
@@ -705,8 +714,8 @@ public class Arrays {
 		 * 
 		 * Prob: Return the length of the smallest contiguous subarray whose sum is >= targetSum.
 		 * 
-		 * Sol: Start with a 0 length segment, grow it (incr rightPointer) till sum > targetSum, 
-		 * then shrink it as much as you can (inc leftPointer) while sum > tagetSum. 
+		 * Sol: Start with a 0 length segment, grow it (incr rightPointer) till sum >= targetSum, 
+		 * then shrink it as much as you can (inc leftPointer) while sum >= tagetSum. 
 		 */
 		int smallestLength = Integer.MAX_VALUE;
 		int sum = 0;
@@ -717,13 +726,14 @@ public class Arrays {
 			
 	        while (sum >= targetSum) {
 	        	smallestLength = Math.min(smallestLength, rightIndex - leftIndex + 1);
-	            sum -= ar[leftIndex++];
+	            sum -= ar[leftIndex];
+	            leftIndex++;
 	        }
 		}
 	    
 	    return smallestLength == Integer.MAX_VALUE ? -1 : smallestLength;
 	}
-	static int lessEfficient_lenSmallestContinuousSubArrayBiggerEqualSum(int[] ar, int targetSum){
+	static int lessEfficient_lenSmallestContinuousSubArrayBiggerEqualSum_V1(int[] ar, int targetSum){
 		/**Time O(n^2 worst), space O(n)
 		 * Return the length of the SMALLEST, CONTIGUOUS subarray of ar whose sum >= targetSum.
 		 */
@@ -754,6 +764,37 @@ public class Arrays {
 		}
 		
 		return smallestLength; 
+	}
+	static int lessEfficient_lenSmallestContinuousSubArrayBiggerEqualSum_V2(int[] ar, int targetSum){
+		/**Time O(n^2 worst), space O(n)*/
+		int[] prefixSum = new int[ar.length];
+		int sum = 0;
+		
+		for(int i = 0; i < ar.length; i++){
+			sum+= ar[i];
+			prefixSum[i] = sum;
+		}
+		
+		int smallestLengthSofar = Integer.MAX_VALUE;
+		
+		int i = ar.length - 1;
+		
+		while(i >= 0){
+			
+			if(prefixSum[i] >= targetSum){
+				int j = i - 1;
+				while(j >= 0 && (prefixSum[i]-prefixSum[j]) < targetSum){
+					j--;
+				}
+
+				if((i - j) < smallestLengthSofar)
+					smallestLengthSofar = i -j;
+			}
+
+			i--;
+		}
+		
+		return smallestLengthSofar;
 	}
 	static int bruteForce_lenSmallestContinuousSubArrayBiggerEqualSum(int[] ar, int targetSum){
 		int smallestLength = Integer.MAX_VALUE;
@@ -819,7 +860,7 @@ public class Arrays {
 		
 		return out;
 	}
-	/******************END: Sum of Sub-array**********************/
+	/*****************END: Sub-array summed to target *****************/
 	
 	
 	/***************START:Longest Increasing Sub-array***********/
@@ -860,7 +901,35 @@ public class Arrays {
 		
 		return output; 
 	}
-	static ArrayList<Integer> longestIncreasingSubArray(int[] ar){
+	static ArrayList<Integer> longestIncreasingSubArray_v1(int[] ar){
+		/**O(n) time, O(1) space
+		 * Return the start and end indices of longset increasing subArray in ar
+		 */
+		int curLen = 1, curStartInd = 0, longestSoFar = 0;
+		ArrayList<Integer> out = new ArrayList<Integer>();
+		out.add(0);
+		out.add(0);
+		
+		for(int i = 1; i < ar.length; i++){
+			if(ar[i] > ar[i-1]){
+				curLen++;
+				
+				if(curLen > longestSoFar){
+					longestSoFar = curLen;
+					out.set(0, curStartInd);
+					out.set(1,i);
+				}
+					
+			}
+			else{
+				curLen = 1;
+				curStartInd = i;
+			}
+		}
+		
+		return out;
+	} 
+	static ArrayList<Integer> longestIncreasingSubArray_v2(int[] ar){
 		/**O(n) time, O(1) space
 		 * Return the start and end indices of longset increasing subArray in ar
 		 */
@@ -892,39 +961,37 @@ public class Arrays {
 	
 	
 	/***************START:ReOrder Array by Permutation***********/
-	static void reOrder_spaceEfficient(int[] A, int[] permutation){
+	static void reOrder_spaceEfficient(int[] ar, int[] perm){
 		/**space O(1), time O(n^2)
 		 * Re order elements of A according to the indexes given in permutation.
 		 * Ex: A[1,2,3], perm=[1,0,2], result=[2,1,3].
+		 * 
+		 * Sol: Go through the perms, as you do each one, save the element of the original array you are
+		 * replacing (and its index) in temp. Then loop through your perms to find the location of temp.
+		 * 
+		 * This is mySol and has a bug with 	int[] ar = {0,1,2,3,4} and int[] perm = {4,2,3,0,1};
 		 */
 		//do the first element to initialize things
-		int tempInd = 0;
-		int temp = A[tempInd];
-		A[tempInd] = A[permutation[0]];
-		permutation[0] -= permutation.length;
+		int tempIn = 0;
+		int temp = ar[0];
+		ar[0] = ar[perm[0]];
+		perm[0] = -1;
 		
-		//do the rest
-		int permInd = 1;
-		while(permInd < permutation.length){
-			if(permutation[permInd] < 0)//already visited this permutation
-				permInd++;
-			else{
-				
-				for(int i = 0; i < permutation.length; i++){
-					if(permutation[i] == tempInd){
-						int tempInd2 = i;
-						//set to visited (denoted by  negetive value)
-						permutation[i] -= permutation.length;
-
-						int temp2 = A[tempInd2];
-						A[tempInd2] = temp;
-
-						tempInd = tempInd2;
+		for(int permInd = 0; permInd < perm.length; permInd++){
+			if(perm[permInd] >= 0){ //If we havent done this one yet, do whats in temp first, then this one.
+				for(int i = 0; i < perm.length; i++){
+					if(perm[i] == tempIn){
+						int tempIn2 = i;
+						int temp2 = ar[i];
+						ar[i] = temp;
+						
+						tempIn = tempIn2;
 						temp = temp2;
+						
+						perm[i] = -1;
 						break;
 					}
 				}
-				
 			}
 		}
 	}
@@ -946,19 +1013,21 @@ public class Arrays {
 	/******************START: Rotate An Array********************/
 	static void rotate_inPlace(int[] A, int pos){
 		/**time: O(n), space O(1)
-		 * Rotate A by "position" positions: 
-		 * Put the first pos elements at the end of the array
+		 * Prob: Rotate A by "pos" positions i.e Put the first pos elements at the end of the array
+		 * 
+		 * Didnt do this one 
 		 */
 		for(int i=0; i < A.length; i++){
 			int temp = A[i];
 			A[i] = A[(i+pos) % A.length];
 			//A[] = temp;
+			//TODO
 		}
 	}
+	
 	static int[] rotate_notInPlace(int[] A, int pos){
 		/**time: O(n), space O(n)
-		 * Rotate A by "position" positions: 
-		 * Put the first pos elements at the end of the array
+		 * Rotate A by "pos" positions. i.e Put the first pos elements at the end of the array
 		 */
 		int[] out = new int[A.length];
 		
@@ -968,11 +1037,16 @@ public class Arrays {
 		return out;
 	}
 	/******************END: Rotate An Array**********************/
-	
-	
-	
+
+
 	
 	public static void main(String[] args) {
-
+		int[] a = {0,1,2,3,4};
+		int[] p = {4,2,3,0,1};
+		
+		reOrder_spaceEfficient(a, p);
+		
+		for(int i = 0; i < a.length; i++)
+		System.out.println(a[i]);
 	}
 }
