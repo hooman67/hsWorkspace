@@ -583,6 +583,7 @@ public class StacksAndQueues {
 
 	
 	
+	
 	public static void main(String[] args) {
 		Pair[] ar = {new Pair(1, 20), new Pair(2, 16), new Pair(3, 24), new Pair(4, 12), new Pair(5, 4), new Pair(6, 8)};
 		

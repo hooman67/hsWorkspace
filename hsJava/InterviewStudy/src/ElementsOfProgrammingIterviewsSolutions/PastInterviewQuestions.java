@@ -142,7 +142,7 @@ public class PastInterviewQuestions{
 	/**************END: Longest Permutation Chain Not in array************/
 
 
-	/************START: Smallest SubArray With Sum <= target************/
+	/************START: Smallest SubArray With Sum >= target************/
 	//Goldman's 1st question
 	/**
 	 * Given an array of integers find the length of the Smallest 
@@ -150,7 +150,7 @@ public class PastInterviewQuestions{
 	 * Return -1 if all the elements sumed up < the given value)
 	 */
 	//Solution in ArraysAndStrings.java  lenSmallestContinuousSubArrayBiggerEqualSum
-	/**************END: Smallest SubArray With Sum <= target************/
+	/**************END: Smallest SubArray With Sum >= target************/
 
 
 	/************START: Sort Pairs to make contiguous path************/

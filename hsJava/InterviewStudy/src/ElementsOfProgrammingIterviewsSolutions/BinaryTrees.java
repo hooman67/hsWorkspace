@@ -1,4 +1,5 @@
 package ElementsOfProgrammingIterviewsSolutions;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,28 +10,22 @@ class BinaryTreeNode<T>{
 	T data;
 	BinaryTreeNode<T> leftChild, rightChild, parent;
 	
-	int sizeOfSubTree;
-//	int visited = -1;
-	int numberOfChilds = -1;
+	/***Fields for specific problems***/
+	int numberOfChildren = -1;
+	int visited = -1;
+	boolean isLocked = false;
+	int numberOfLockedChilds = 0;
+	/***Fields for specific problems***/
 
 	BinaryTreeNode(T val){
 		data = val;
 		leftChild = rightChild = parent = null;
 	}
-
 	BinaryTreeNode(T val, BinaryTreeNode par){
 		data = val;
 		parent = par;
 		leftChild = rightChild;
 	}
-	
-	BinaryTreeNode(T val, BinaryTreeNode par, int subTreeSize){
-		data = val;
-		parent = par;
-		leftChild = rightChild;
-		sizeOfSubTree = subTreeSize;
-	}
-	
 	BinaryTreeNode(T val, BinaryTreeNode<T> left, BinaryTreeNode<T> right, BinaryTreeNode<T> par){
 		data = val;
 		leftChild = left;
@@ -41,39 +36,8 @@ class BinaryTreeNode<T>{
 
 
 public class BinaryTrees {
-	/**************START: Locking A tree node******************/
-	static class LockTreeNode{
-		BinaryTreeNode<Integer> tree;
-		static HashSet<BinaryTreeNode<Integer>> lockedNodes = new HashSet<BinaryTreeNode<Integer>>();
-		
-		boolean isLocked(BinaryTreeNode<Integer> node){
-			return lockedNodes.contains(node);
-		}
-		
-		boolean lock(BinaryTreeNode<Integer> node){
-			if(canLock(node)){
-				lockedNodes.add(node);
-				return true;
-			}
-			else
-				return false;
-		}
-		
-		boolean canLock(BinaryTreeNode<Integer> node){
-			if(node == null)
-				return true;
-			
-			return canLock(node.leftChild) && lockedNodes.contains(node) && canLock(node.rightChild);
-		}
-		
-		boolean unlock(BinaryTreeNode<Integer> node){
-			return lockedNodes.remove(node);
-		}
-	}
-	/**************END: Locking A tree node********************/
 	
-	
-	/**************START: Tree Traversals**********************/
+	/***********************START: Tree Traversals***********************/
 	static void printInOrder_Recursive(BinaryTreeNode<Integer> node){
 		/**Time O(n), space O(h)*/
 		if(node == null)
@@ -138,7 +102,25 @@ public class BinaryTrees {
 		printPreOrder_Recursive(node.leftChild);
 		printPreOrder_Recursive(node.rightChild);
 	}
-	static void printPreOrder_Stack(BinaryTreeNode<Integer> node){
+	static void printPreOrder_Stack_V3(BinaryTreeNode<Integer> node){
+		printDepthFirst_Stack(node);
+	}
+	static void printPreOrder_Stack_V2(BinaryTreeNode<Integer> node){
+		BinaryTreeNode<Integer> cur = node;
+		Stack<BinaryTreeNode<Integer>> st = new Stack<>();
+		
+		while(!st.isEmpty() || cur != null){
+			if(cur != null){
+				System.out.println(cur.data);
+				st.push(cur.rightChild);
+				cur = cur.leftChild;
+			}
+			else{
+				cur = st.pop();
+			}
+		}
+	}
+	static void printPreOrder_Stack_V1(BinaryTreeNode<Integer> node){
 		/**time O(n), space O(log(n)==h), but no visited field needed.
 		 * Problem: Print the elements in a BST in sorted order. So get inorder traversal of bst.
 		 * 
@@ -299,7 +281,7 @@ public class BinaryTrees {
 	}
 	static void printDepthFirst_Stack(BinaryTreeNode<Integer> node){
 		/**time O(n), space O(log(n)==h), but no visited field needed.
-		 * Problem: Print the elements in a BST in sorted order. So get inorder traversal of bst.
+		 * Problem: Do PreOrder traversal of binary tree
 		 * 
 		 * Sol: no recursion is allowed, so we need to use a stack to implement depth first traversal.
 		 */
@@ -311,11 +293,11 @@ public class BinaryTrees {
 			
 			System.out.println(cur.data);
 			
-			if(cur.leftChild != null)
-				st.push(cur.leftChild);
-			
 			if(cur.rightChild != null)
 				st.push(cur.rightChild);
+			
+			if(cur.leftChild != null)
+				st.push(cur.leftChild);
 		}
 	}
 	
@@ -345,7 +327,7 @@ public class BinaryTrees {
 		curPath.addLast(n.data);		
 		storePath(n.parent, curPath);
 	}
-	/****************END: Tree Traversals************************/
+	/*************************END: Tree Traversals***********************/
 	
 	
 	/*********START: Kth element of inOrder traversal***********/
@@ -353,15 +335,15 @@ public class BinaryTrees {
 		/**Time O(h), space O(1)
 		 * This requires each node to store the number of nodes below it + 1 (iteself).
 		 */
-		while(node != null && k > 0){
+		while(node != null){
 			
-			int leftSize = node.leftChild != null ? node.leftChild.sizeOfSubTree : 0;
+			int sizeOfLeftSubtree = node.leftChild != null ? node.leftChild.numberOfChildren + 1 : 0;
 			
-			if(leftSize < k - 1){
-				k -= (leftSize + 1);
+			if(sizeOfLeftSubtree < k - 1){
+				k -= (sizeOfLeftSubtree + 1);
 				node = node.rightChild;
 			}
-			else if(leftSize == k - 1)
+			else if(sizeOfLeftSubtree == k - 1)
 				return node;
 			else{
 				node = node.leftChild;
@@ -434,6 +416,108 @@ public class BinaryTrees {
 		helper_getKthElementOfInOrderTraversal_NoLinkToParents(node.rightChild, k, currentK, foundNode);
 	}
 	/*********END: Kth element of inOrder traversal************/
+	
+	
+	/*****START: Store the number of nodes (# of childs) under each node *****/
+	static int storeChildCounts(BinaryTreeNode n){
+		if(n == null)
+			return 0;
+		
+		int countLeft = storeChildCounts(n.leftChild);
+		int countRight = storeChildCounts(n.rightChild);
+		
+		n.numberOfChildren = countLeft + countRight;
+		
+		return n.numberOfChildren + 1; //count this one too
+	}
+	/*******END: Store the number of nodes (# of childs) under each node *****/
+	
+	
+	/*********START: Kth lowest Common Ancestor***********/
+	static BinaryTreeNode<Integer> getLCA_generalCase(BinaryTreeNode<Integer> root, BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
+		/**O(n) time, O(h) space (due to recursion).
+		 * No link to parents required. But, This assumes both nodes exist in the tree. if neither is 
+		 * in tree we get null. If only one of them is in the tree, we get unpredictable results.
+		 */
+		if(root == null)//This is the best case when we don't encounter either of the nodes.
+			return null;
+		
+		if(root.leftChild == node1 || root.leftChild == node2 || root.rightChild == node1 || root.rightChild == node2)
+			return root;//This is the best case if we don't find one of the nodes.
+		
+		BinaryTreeNode<Integer> leftRes = getLCA_generalCase(root.leftChild, node1, node2);
+		BinaryTreeNode<Integer> rightRes = getLCA_generalCase(root.rightChild, node1, node2);
+
+		return leftRes != null ? leftRes : rightRes;
+	}
+	static BinaryTreeNode<Integer> getLCA_WithLinkToParent_higherTimeLowerSpace(BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
+		/**O(heightOfTree) time, O(1) space.
+		 * This requires link to parents. We find the depth of each node, traverse up the 
+		 * deeper node to get both of them to same depth. Then traverse up one at a time 
+		 * to reach a common.
+		 */
+		
+		//1. Find depth of each node
+		int depthNode1 = 0, depthNode2 = 0, depthDif = 0;
+		
+		BinaryTreeNode<Integer> cur = node1;
+		while(cur != null){
+			depthNode1++;
+			cur = cur.parent;
+		}
+		
+		cur = node2;
+		while(cur != null){
+			depthNode2++;
+			cur = cur.parent;
+		}
+		
+		if(depthNode1 < depthNode2){
+			depthDif = depthNode2 - depthNode1;
+			
+			while(depthDif > 0){
+				node2 = node2.parent;
+				depthDif--;
+			}
+		}
+		else{
+			depthDif = depthNode1 - depthNode2;
+			
+			while(depthDif > 0){
+				node1 = node1.parent;
+				depthDif--;
+			}
+		}
+		
+		while(node2 != node1 && node1 != null && node2 != null){
+			node2 = node2.parent;
+			node1 = node1.parent;
+		}
+		
+		if(node1 == null || node2 == null)
+			return null;
+		else
+			return node2;
+	}
+	static BinaryTreeNode<Integer> getLCA_WithLinkToParent_LowerTimeHigherSpace(BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
+		/**O(max(depthNode1, depthNode2)) time, O(h) space.
+		 * Uses a HashMap. This requires link to parents. 
+		 */
+		HashMap<Integer, BinaryTreeNode<Integer>> map = new HashMap<>();
+		while(node1 != null){
+			map.put(node1.data, node1);
+			node1 = node1.parent;
+		}
+		
+		while(node2.parent != null){
+			if(map.containsKey(node2.data))
+				return node2;
+			node2 = node2.parent;
+		}
+		
+		return node2;
+	}
+	/*********END: Kth lowest Common Ancestor*************/
 	
 	
 	/*********START: Printing Paths in a Tree***********/
@@ -517,73 +601,99 @@ public class BinaryTrees {
 	/***********END: Printing Paths in a Tree***********/
 	
 	
-	/*********START: Kth lowest Common Ancestor***********/
-	static BinaryTreeNode<Integer> getLCA_generalCase(BinaryTreeNode<Integer> root, BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
-		/**O(n) time, O(h) space (due to recursion).
-		 * This requires nothing. No link to parents
-		 */
-		if(root == null) //empty tree
-			return null;
-		else if(root == node1 || root == node2) 
-			return root;
+	/**************START: Locking A tree node******************/
+	static class LockTree<T>{
+		BinaryTreeNode<T> root;
 		
-		BinaryTreeNode<Integer> resultsFromLeftSubTree = getLCA_generalCase(root.leftChild, node1, node2);
-		BinaryTreeNode<Integer> resultsFromRightSubTree = getLCA_generalCase(root.rightChild, node1, node2);
-		
-		return resultsFromLeftSubTree != null ? resultsFromLeftSubTree : resultsFromRightSubTree;
-	}
-	static BinaryTreeNode<Integer> getLCA_WithLinkToParent_higherTimeLowerSpace(BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
-		/**O(heightOfTree) time, O(1) space.
-		 * This requires link to parents. We find the depth of each node, traverse up the 
-		 * deeper node to get both of them to same depth. Then traverse up one at a time 
-		 * to reach a common.
-		 */
-		return null;
-	}
-	static BinaryTreeNode<Integer> getLCA_WithLinkToParent_LowerTimeHigherSpace(BinaryTreeNode<Integer> node1, BinaryTreeNode<Integer> node2){
-		/**O(max(depthNode1, depthNode2)) time, O(h) space.
-		 * This requires link to parents. Uses a HashMap
-		 */
-		HashMap<Integer, BinaryTreeNode<Integer>> map = new HashMap<>();
-		while(node1 != null){
-			map.put(node1.data, node1);
-			node1 = node1.parent;
+		boolean isLocked(BinaryTreeNode<T> n){
+			return n.isLocked;
 		}
 		
-		while(node2.parent != null){
-			if(map.containsKey(node2.data))
-				return node2;
-			node2 = node2.parent;
+		boolean canBeLocked(BinaryTreeNode<T> n){
+			/**Time O(h) = O( log n) */
+			if(n == null || n.numberOfLockedChilds != 0)
+				return false;
+			else{
+				BinaryTreeNode<T> cur = n.parent;
+				
+				while(cur != null){
+					if(cur.isLocked)
+						return false;
+				}
+				
+				return true;
+			}
 		}
 		
-		return node2;
-	}
-	/*********END: Kth lowest Common Ancestor*************/
-	
-	
-	/*****START: Store the number of nodes (# of childs) under each node *****/
-	static int storeChildCounts(BinaryTreeNode n){
-		if(n == null)
-			return 0;
+		boolean lock(BinaryTreeNode<T> n){
+			/**Time O(h) = O( log n) */
+			if(!canBeLocked(n))
+				return false;
+			
+			//lock the node
+			n.isLocked = true;
+			
+			//modify parents
+			BinaryTreeNode<T> cur = n.parent;
+			while(cur != null){
+				cur.numberOfLockedChilds++;
+			}
+			
+			return true;
+		}
 		
-		int countLeft = storeChildCounts(n.leftChild);
-		int countRight = storeChildCounts(n.rightChild);
-		
-		n.numberOfChilds = countLeft + countRight;
-		
-		return n.numberOfChilds + 1; //count this one too
+		boolean unlock(BinaryTreeNode<T> n){
+			/**Time O(h) = O( log n) */
+			if(n == null || !n.isLocked)
+				return false;
+			
+			//lock the node
+			n.isLocked = true;
+			
+			//modify parents
+			BinaryTreeNode<T> cur = n.parent;
+			while(cur != null){
+				cur.numberOfLockedChilds--;
+			}
+			
+			return true;
+		}
 	}
-	/*******END: Store the number of nodes (# of childs) under each node *****/
 	
-	
-	
-	static void kos(BinaryTreeNode n){
-		if(n == null)
-			return;
-		kos(n.leftChild);
-		System.out.println(n.data + " :  " + n.numberOfChilds);
-		kos(n.rightChild);
+	static class LockTree_Wrong{
+		BinaryTreeNode<Integer> tree;
+		static HashSet<BinaryTreeNode<Integer>> lockedNodes = new HashSet<BinaryTreeNode<Integer>>();
+		
+		boolean isLocked(BinaryTreeNode<Integer> node){
+			return lockedNodes.contains(node);
+		}
+		
+		boolean lock(BinaryTreeNode<Integer> node){
+			if(canLock(node)){
+				lockedNodes.add(node);
+				return true;
+			}
+			else
+				return false;
+		}
+		
+		boolean canLock(BinaryTreeNode<Integer> node){
+			if(node == null)
+				return true;
+			
+			return canLock(node.leftChild) && lockedNodes.contains(node) && canLock(node.rightChild);
+		}
+		
+		boolean unlock(BinaryTreeNode<Integer> node){
+			return lockedNodes.remove(node);
+		}
 	}
+	/**************END: Locking A tree node********************/
+
+
+
+
+	
 	public static void main(String[] args) {
 		/*BinaryTreeNode<Integer> root = new BinaryTreeNode(4, null, 9);
 		
@@ -613,10 +723,8 @@ public class BinaryTrees {
 		
 		root.rightChild.rightChild.leftChild = new BinaryTreeNode(7);
 		root.rightChild.rightChild.rightChild = new BinaryTreeNode(9);
-		
-		storeChildCounts(root);
-		kos(root);
-		
+
+		//System.out.println(bs(root,root.rightChild.rightChild.rightChild, root.rightChild.leftChild).data);
 	}
 
 }

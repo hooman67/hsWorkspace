@@ -93,7 +93,7 @@ public class Lists {
 	
 	/***START: Reverse Singly LinkedList*********/
 	static ListNode<Integer> reverseList_Itr(ListNode<Integer> head){
-		/**SinglyLinkedList: O(n) time and O(n) space due to recursion*/
+		/**SinglyLinkedList: O(n) time and O(1) space */
 		ListNode<Integer> cur = head, prev = null;
 		
 		while(cur != null){
@@ -612,11 +612,11 @@ public class Lists {
 	}
 	/******END: copy a list that has a jump field as well as next (i.e. a postings list)****/
 
-
 	
 	
+		
 	public static void main(String[] args) {
-		ListNode<Integer> A = new ListNode<Integer>(0, new ListNode<Integer>(1, new ListNode<Integer>(2, new ListNode<Integer>(3,new ListNode<Integer>(4)))));
+		/*ListNode<Integer> A = new ListNode<Integer>(0, new ListNode<Integer>(1, new ListNode<Integer>(2, new ListNode<Integer>(3,new ListNode<Integer>(4)))));
 		
 		ListNode<Integer> a =  new ListNode<Integer>(1);
 		ListNode<Integer> b =  new ListNode<Integer>(2);
@@ -649,7 +649,7 @@ public class Lists {
 		while(D!=null){
 			System.out.println(D.data + "  jump: " + D.jump.data);
 			D = D.next;
-		}
+		}*/		
 	}
 
 }

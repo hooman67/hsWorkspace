@@ -96,14 +96,14 @@ public class Trie {
 		 * Returns the shortest prefix of s that is not a prefix in this trie. Basically, the last
 		 * character of the returned string is the first character of s (input) that is not in the trie.
 		 */
-		String curPrefix = new String();
+		StringBuffer curPrefix = new StringBuffer();
 		TrieNode curNode = root;
 		
 		for(char c : s.toCharArray()){
-			curPrefix += c;
+			curPrefix.append(c);
 			
 			if(!curNode.childs.containsKey(c))
-				return curPrefix;
+				return curPrefix.toString();
 			
 			curNode = curNode.childs.get(c);
 		}
@@ -169,7 +169,6 @@ public class Trie {
 		return isAStringInTrie(s, root);
 	}
 	/*****END: is a string made up of other words or prefixes in the tre? ***/
-	
 	
 	
 	public static void main(String[] args) {

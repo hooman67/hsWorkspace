@@ -597,7 +597,7 @@ public class Arrays {
 		return out;
 	}
 
-	static boolean isThereSubArraySummedToTarget(int[] ar, int targetSum){
+	static boolean isThereSubSetSummedToTarget(int[] ar, int targetSum){
 		/**Time O(targetSum*n) space O(targetSum). pseudo-polynomial time (i.e.
 		 * function of largest integer in ar not size of ar).
 		 * NP-Hard problem: return any (not contiguous) subset of ar whose elements 
@@ -1038,7 +1038,7 @@ public class Arrays {
 	}
 	/******************END: Rotate An Array**********************/
 
-
+	
 	
 	public static void main(String[] args) {
 		int[] a = {0,1,2,3,4};
