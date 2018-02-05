@@ -1,200 +1,173 @@
-#include "hsGlobolHeader.h"
+#include "iostream"
+#include<vector>
+#include<list>
+#include<stack>
+#include<algorithm>
 
-void merge(list<int>& s1, list<int>& s2, list<int>& s){ //ALL CASES O(nlogn) mem: O(n) 
-	auto p1 = s1.begin();                        // this perform is for doublylinked lists or arrays not singly linked
-	auto p2 = s2.begin();
-	while( p1 != s1.end() && p2 != s2.end() ){  //if lists are sorted in decreasing order, then we have to do if(p1 > p2) first
-		if( *p1 < *p2 )                        
-			s.push_back(*p1++);
-		else
-			s.push_back(*p2++);
-	}
-	while( p1 != s1.end() )
-		s.push_back(*p1++);
-	while( p2 != s2.end() )
-		s.push_back(*p2++);
-} 
-void mergeSort( list<int>& s ){//ALL CASES O(nlogn) mem: O(n) 
-	int n = s.size();              // this perform is for doublylinked lists or arrays not singly linked
-	if( n <= 1)
+using namespace std;
+
+/************ START: Make a Contiguous chaing of pairs ************/
+/**
+* Given a jumbled collection of segments, each of which is represented as
+* a Pair(startPoint, endPoint), this function sorts the segments to
+* make a continuous path.
+*
+* A few assumptions you can make:
+* 1. Each particular segment goes in one direction only, i.e.: if you
+* see (1, 2), you will not see (2, 1).
+* 2. Each starting point only have one way to the end point, i.e.: if
+* you see (6, 5), you will not see (6, 10), (6, 3), etc.
+*
+* For example, if you're passed a list containing the following int arrays:
+*      [(4, 5), (9, 4), (5, 1), (11, 9)]
+* Then your implementation should sort it such:
+*      [(11, 9), (9, 4), (4, 5), (5, 1)]
+*/
+void mergePairs(vector<pair<int, int>>& a, vector<pair<int, int>>& b, vector<pair<int, int>>& c){
+	if (a.size() == 0 || b.size() == 0)
 		return;
-	list<int> s1;
-	list<int> s2;
-	auto p = s.begin();
-	for( int i = 0; i < n/2; i++)
-		s1.push_back(*p++);
-	for( int i = n/2; i < n; i++)
-		s2.push_back(*p++);
-	s.clear();
-	mergeSort(s1);
-	mergeSort(s2);
-	merge( s1, s2, s );
-}
-void merge(vector<int>& in, vector<int>& out, int b, int m) { //ALL CASES O(nlogn) mem: O(n) 
-	int i = b; // index into first part of vector in
-	int j = b + m; // index into 2nd part of in
-	int n = in.size();
-	int e1 = std::min(b + m, n); // end 1st part of vector in
-	int e2 = std::min(b + 2*m, n); // end of 2nd part of vector in
-	int k = b; //output index
-	while ((i < e1) && (j < e2)) { 
-		if(!(in[j] < in[i])) // append smaller to S
-			out[k++] = in[i++];
-		else
-			out[k++] = in[j++];
-	}while (i < e1) // copy rest of run 1 to S
-		out[k++] = in[i++];
-	while (j < e2) // copy rest of run 2 to S
-		out[k++] = in[j++];
-}
-void mergeSort(vector<int>& S){//ALL CASES O(nlogn) mem: O(n) 
-	int n = S.size();               // this perform is for doublylinked lists or arrays not singly linked
-	vector<int> out(n); 
-	for (int m = 1; m < n; m *= 2) { // list sizes doubling
-		for (int b = 0; b < n; b += 2*m) { // beginning of list
-			merge(S, out, b, m); // merge sublists
-		}
-		swap(S, out); // swap input with output
-	}
-}
-//merge sort for stacks
-void merge(stack<int>& s, stack<int>& s1, stack<int>& s2, bool flag){
-	while( !s1.empty() && !s2.empty() ){
-		if( flag ){
-			if( s1.top() > s2.top() ){
-				s.push(s1.top() );
-				s1.pop();
-			}
-			else{
-				s.push(s2.top() );
-				s2.pop();
-			}
-		}
-		else{
-			if( s1.top() < s2.top() ){
-				s.push(s1.top() );
-				s1.pop();
-			}
-			else{
-				s.push(s2.top() );
-				s2.pop();
-			}
-		}
-	}
-	while( !s1.empty() ){
-			s.push(s1.top() );
-			s1.pop();
-	}
+	if (a.back().second == b.front().first){
+		for (auto ap = a.begin(); ap != a.end(); ap++)
+			c.push_back(*ap);
 
-	while( !s2.empty() ){
-			s.push(s2.top() );
-			s2.pop();
+		for (auto bp = b.begin(); bp != b.end(); bp++)
+			c.push_back(*bp);
 	}
-}
-void mergeSort(stack<int>& s, bool flag){ //call with flag == true for smallest element on top  and with flag == false for largest element on top
-	int size = s.size();
-	if( size <= 1 )
+	else if (b.front().second == a.back().first){
+		for (auto bp = b.begin(); bp != b.end(); bp++)
+			c.push_back(*bp);
+
+		for (auto ap = a.begin(); ap != a.end(); ap++)
+			c.push_back(*ap);
+	}
+	else{
 		return;
-	stack<int> s1,s2;
-	for(int i =0; i < size/2;i++){
-		s1.push(s.top());
-		s.pop();
 	}
-	for( int i = size/2; i < size;i++){
-	    s2.push(s.top());
-		s.pop();
-	}
-	mergeSort(s1, !flag);
-	mergeSort(s2, !flag);
-	merge(s,s1,s2, flag);
 }
+void divideAndMergePairs(vector<pair<int, int>>& v){
+	if (v.size() <= 1)
+		return;
+
+	vector<pair<int, int>> a, b;
+
+	for (int i = 0; i < v.size() / 2; i++)
+		a.push_back(v[i]);
+
+	for (int i = v.size() / 2; i < v.size(); i++)
+		b.push_back(v[i]);
+
+	v.clear();
+	divideAndMergePairs(a);
+	divideAndMergePairs(b);
+	mergePairs(a, b, v);
+}
+void connectPairs(vector<pair<int, int>>& in){
+	vector<pair<int, int>> v;
+
+	while (v.size() == 0){
+		random_shuffle(in.begin(), in.end());
+
+		for (pair<int, int> i : in)
+			v.push_back(i);
+
+		divideAndMergePairs(v);
+	}
+
+	in.clear();
+	for (pair<int, int> i : v)
+		in.push_back(i);
+}
+/************** END: Make a Contiguous chaing of pairs ************/
 
 
-void quickSortHelper(vector<int>& v, int a, int b) { //worst case O(n^2) av,best O(nlogn) MEM O(1) this is inplace els O(n)
+/************ START: Quick Sort, b is vector.size() ************/
+int partLg(vector<int>& v, int pivInd, int beg, int end){
+	int piv = v[pivInd];
+	swap(v[pivInd], v[end]);
+
+	int larger = 0, p = 0;
+	while (p < end){
+		if (v[p] > piv)
+			swap(v[p++], v[larger++]);
+		else
+			p++;
+	}
+
+	swap(v[end], v[larger]);
+
+	return larger;
+}
+void quickSort_myVer(vector<int>& v, int st, int end){
+	if (end <= st)
+		return;
+
+	int pivInd = st;
+
+	int newPivInd = partLg(v, pivInd, st, end);
+
+	quickSort_myVer(v, st, newPivInd);
+	quickSort_myVer(v, newPivInd + 1, end);
+}
+void quickSort_OldVersion(vector<int>& v, int a, int b) { //worst case O(n^2) av,best O(nlogn) MEM O(1) this is inplace els O(n)
 	if (a >= b) return; // 0 or 1 left? done
 	int pivot = v[b]; // select last element  as pivot
 	int l = a; // left edge
-	int r = b-1; // start from the element to the left of the last element
+	int r = b - 1; // start from the element to the left of the last element
 	while (l <= r) { //the two have not crossed yet
-		while (l <= r && !(pivot < v[l]) )  // scan right to find sth that is larger than pivot
+		while (l <= r && !(pivot < v[l]))  // scan right to find sth that is larger than pivot
 			l++; // you must put the =  in <= or the whole thing doesnt work
 		while (r >= l && !(v[r] < pivot)) // scan left to find sth that is smaller than pivot
-			 r--;// you must put the =  in <= or the whole thing doesnt work
+			r--;// you must put the =  in <= or the whole thing doesnt work
 		if (l < r) // the two havent crossed yet
-			swap(v[l],v[r]);
+			swap(v[l], v[r]);
 	} // the two indices have crossed and we have exited the loop
-	swap(v[l],v[b]); // swap with pivot to put the pivot almost at the middle of the list ( l )
-	quickSortHelper(v, a, l-1); // recur on both sides
-	quickSortHelper(v, l+1, b);
+	swap(v[l], v[b]); // swap with pivot to put the pivot almost at the middle of the list ( l )
+	quickSortHelper(v, a, l - 1); // recur on both sides
+	quickSortHelper(v, l + 1, b);
 }
-void quickSort(vector<int>& v) { //worst case O(n^2) happends when arr is already sorted best O(nlogn)
-	if (v.size() <= 1)       //ave= best if pivot selected at random or to be mean  MEM: O(1) this is inplace else O(n)
-		return; // already sorted
-	quickSortHelper(v, 0, v.size() -1 ); // call sort utility
+/************** END: Quick Sort, b is vector.size() ************/
+
+
+/****************** START: Merge Sort ******************/
+template<class T>
+void merge(list<T>& a, list<T>& b, list<T>& c){
+	auto ap = a.begin(), bp = b.begin();
+
+	while (ap != a.end() && bp != b.end()){
+		if ((*ap) < (*bp))
+			c.push_back(*ap++);
+		else
+			c.push_back(*bp++);
+	}
+
+	while (ap != a.end())
+		c.push_back(*ap++);
+
+	while (bp != b.end())
+		c.push_back(*bp++);
 }
-//Quick sort is usually not good for linked lists (but it dst need random access bydef so it is possible (nodes)
-template<class Node> 
-void qs(Node * hd, Node * tl, Node ** rtn) //worst case O(n^2) happends when arr is already sorted best O(nlogn)
-{                          //ave= best if pivot selected at random or to be mean  MEM: O(1) this is inplace else O(n)
-    int nlo, nhi;
-    Node *lo, *hi, *q, *p;
+template<class T>
+void mergeSort(list<T>& in){
+	if (in.size() <= 1)
+		return;
 
-    /* Invariant:  Return head sorted with `tl' appended. */
-    while (hd != NULL) {
+	list<T> a, b;
+	auto p = in.begin();
 
-        nlo = nhi = 0;
-        lo = hi = NULL;
-        q = hd;
-        p = hd->next;
+	for (int i = 0; i < in.size() / 2; i++)
+		a.push_back(*p++);
 
-        /* Start optimization for O(n) behavior on sorted and reverse-of-sorted lists */
-        while (p != NULL && LEQ(p, hd)) {
-            hd->next = hi;
-            hi = hd;
-            ++nhi;
-            hd = p;
-            p = p->next;
-        }
+	for (int i = in.size() / 2; i < in.size(); i++)
+		b.push_back(*p++);
 
-        /* If entire list was ascending, we're done. */
-        if (p == NULL) {
-            *rtn = hd;
-            hd->next = hi;
-            q->next = tl;
-            return;
-        }
-        /* End optimization.  Can be deleted if desired. */
 
-        /* Partition and count sizes. */
-        while (p != NULL) {
-            q = p->next;
-            if (LEQ(p, hd)) {
-                p->next = lo;
-                lo = p;
-                ++nlo;
-            } else {
-                p->next = hi;
-                hi = p;
-                ++nhi;
-            }
-            p = q;
-        }
-
-        /* Recur to establish invariant for sublists of hd, 
-           choosing shortest list first to limit stack. */
-        if (nlo < nhi) {
-            qs(lo, hd, rtn);
-            rtn = &hd->next;
-            hd = hi;        /* Eliminated tail-recursive call. */
-        } else {
-            qs(hi, tl, &hd->next);
-            tl = hd;
-            hd = lo;        /* Eliminated tail-recursive call. */
-        }
-    }
-    /* Base case of recurrence. Invariant is easy here. */
-    *rtn = tl;
+	in.clear();
+	mergeSort(a);
+	mergeSort(b);
+	return merge(a, b, in);
 }
+/******************** END: Merge Sort ******************/
+
 
 void insertionSort(vector<int>& v ){ //best O(n) array already sorted almost. worst,av O(n^2), inplace mem O(1)
 	for(int i = 1; i < v.size(); i++){
