@@ -1,6 +1,5 @@
 #include<iostream>
 #include<stack>
-#include<unordered_set>
 
 using namespace std;
 
@@ -18,10 +17,10 @@ public:
 	}
 
 	/*Node(T data){  FAILS TO SET THE data FIELD IN RUNTIME
-		Node(data, NULL, NULL);
+	Node(data, NULL, NULL);
 	}*/
 
-	Node(T data):data(data), left(NULL), right(NULL){}
+	Node(T data) :data(data), left(NULL), right(NULL){}
 };
 template<class T>
 void deleteNodes(Node<T>* root){
@@ -34,13 +33,13 @@ void deleteNodes(Node<T>* root){
 	deleteNodes(root->left);
 }
 
-
+/***********START: Printing ************/
 template<class T>
 void printPre(Node<T>* root){
 	if (root == NULL){
 		return;
 	}
-		
+
 
 	cout << root->data << "  ";
 	printPre(root->left);
@@ -52,7 +51,7 @@ void printIn(Node<T>* root){
 		return;
 	}
 
-	
+
 	printIn(root->left);
 	cout << root->data << "  ";
 	printIn(root->right);
@@ -68,6 +67,78 @@ void printPost(Node<T>* root){
 	printPost(root->right);
 	cout << root->data << "  ";
 }
+
+void printPre(Node<int>* root){
+	stack<Node<int>*>* st = new stack<Node<int>*>();
+
+	st->push(root);
+
+	while (!st->empty()){
+		Node<int>* cur = st->top();
+		st->pop();
+
+		cout << cur->data << "  ";
+
+		if (cur->right != NULL)
+			st->push(cur->right);
+		if (cur->left != NULL)
+			st->push(cur->left);
+
+	}
+
+	cout << "\n";
+
+	delete st;
+}
+void printIn(Node<int>* root){
+	stack<Node<int>*>* st = new stack<Node<int>*>();
+
+	Node<int>* cur = root;
+
+	while (!st->empty() || cur != NULL){
+		if (cur != NULL){
+			st->push(cur);
+			cur = cur->left;
+		}
+		else{
+			cur = st->top();
+			st->pop();
+			cout << cur->data << "  ";
+			cur = cur->right;
+		}
+	}
+
+	delete st;
+}
+void printPost(Node<int>* root){
+	stack<Node<int>*>* st = new stack<Node<int>*>();
+	stack<Node<int>*>* st2 = new stack<Node<int>*>();
+
+	Node<int>* cur = root;
+
+	while (!st->empty() || cur != NULL){
+		if (cur != NULL){
+			st->push(cur);
+			st2->push(cur);
+			cur = cur->right;
+		}
+		else{
+			cur = st->top();
+			st->pop();
+			cur = cur->left;
+		}
+	}
+
+	while (!st2->empty()){
+		if (st2->top() != NULL)
+			cout << st2->top()->data << "   ";
+		st2->pop();
+	}
+
+	delete st;
+	delete st2;
+}
+
 void prChildNbs(Node<int>* root){
 	if (root == NULL)
 		return;
@@ -76,19 +147,13 @@ void prChildNbs(Node<int>* root){
 	cout << root->childs << "  ";
 	prChildNbs(root->right);
 }
-
-
-class LockNode{
-	Node<int>* root;
-
-
-};
+/*************END: Printing ************/
 
 
 int addChildsNbs(Node<int>* root){
 	if (root == NULL)
 		return 0;
-	
+
 	int leftChilds = addChildsNbs(root->left);
 	int rightChilds = addChildsNbs(root->right);
 
@@ -112,15 +177,10 @@ int main(){
 	root->right->right->right = new Node<int>(9);
 
 
-	addChildsNbs(root);
-
-	printIn(root);
+	printPost(root);
 	cout << "\n\n";
-	prChildNbs(root);
-	cout << "\n\n";
+	printPost(root);
 
 
 	deleteNodes(root);
 }
-
-

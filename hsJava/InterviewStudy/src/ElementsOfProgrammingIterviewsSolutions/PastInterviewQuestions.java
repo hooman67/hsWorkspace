@@ -3,7 +3,7 @@ import java.util.*;
 
 public class PastInterviewQuestions{
 	/************START: Balance Paranthesis ************/
-	static class BalanceParants{
+	static class BalancePParentheses{
 		/**Given a string with different types of parentheses viz. {},() and [] determine 
 		 * if the string has balanced parentheses. Balanced parentheses means that the brackets 
 		 * should be ordered and matched correctly

@@ -48,45 +48,6 @@ void duthcPar(vector<int>& v, int pivInd){
 	swap(v[v.size() - 1], v[equal]);
 }
 
-int partLg(vector<int>& v, int pivInd, int beg, int end){
-	int piv = v[pivInd];
-	swap(v[pivInd], v[end]);
-
-	int larger = 0, p = 0;
-	while (p < end){
-		if (v[p] > piv)
-			swap(v[p++], v[larger++]);
-		else
-			p++;
-	}
-
-	swap(v[end], v[larger]);
-
-	return larger;
-}
-int getKLargest(vector<int>& v, int k){
-	int st = 0, end = v.size() - 1;
-
-	while (st <= end){
-		int pivInd = rand() % (end - st + 1) + st;
-
-		int newPivInd = partLg(v, pivInd, st, end);
-
-		if ((newPivInd + 1) == k){
-			return v[newPivInd];
-		}
-		else if ((newPivInd + 1) > k){
-			end = newPivInd - 1;
-		}
-		else{
-			st = newPivInd + 1;
-			k -= newPivInd;
-		}
-
-	}
-
-}
-
 void quickSort(vector<int>& v, int st, int end){
 	if (end <= st)
 		return;
@@ -282,6 +243,25 @@ vector<int> zeroModNSumSubset(int ar[], int arLen){
 
 
 
+/***************START:Longest Increasing Sub-array***********/
+int longestIncreasingSubArray(vector<int>& v){
+	int longestSoFar = numeric_limits<int>::min();
+
+	int curLen = 0;
+	for (int i = 1; i < v.size(); i++){
+		if (v[i] > v[i - 1]){
+			curLen++;
+			longestSoFar = max(longestSoFar, curLen);
+		}
+		else{
+			curLen = 0;
+		}
+	}
+}
+/*****************END:Longest Increasing Sub-array***********/
+
+
+
 /******************START: MaxDifferences************************/
 int maxDifference(int ar[], int arLen){
 	int largestDif = numeric_limits<int>::min();
@@ -303,7 +283,23 @@ int maxDifference(int ar[], int arLen){
 
 
 /*******************START: return k biggest elements*******************/
-vector<int> getLargestK_selectionRank(vector<int>& ar, int k){
+int partLg(vector<int>& v, int pivInd, int beg, int end){
+	int piv = v[pivInd];
+	swap(v[pivInd], v[end]);
+
+	int larger = 0, p = 0;
+	while (p < end){
+		if (v[p] > piv)
+			swap(v[p++], v[larger++]);
+		else
+			p++;
+	}
+
+	swap(v[end], v[larger]);
+
+	return larger;
+}
+int getKLargest(vector<int>& v, int k){
 	/**time O(n), space O(1) aside from few recursions.
 	*
 	* Prob: return the largest K elements. where k = 1 means max element.
@@ -316,10 +312,26 @@ vector<int> getLargestK_selectionRank(vector<int>& ar, int k){
 	*
 	* The version that returns Kth largest element is in Searching.java
 	*/
-}
-int helper_partition(vector<int>& ar, int st, int end, int pivotIndex){
-	/**Returns the index of the pivot in the reordered array.
-	*/
+	int st = 0, end = v.size() - 1;
+
+	while (st <= end){
+		int pivInd = rand() % (end - st + 1) + st;
+
+		int newPivInd = partLg(v, pivInd, st, end);
+
+		if ((newPivInd + 1) == k){
+			return v[newPivInd];
+		}
+		else if ((newPivInd + 1) > k){
+			end = newPivInd - 1;
+		}
+		else{
+			st = newPivInd + 1;
+			k -= newPivInd;
+		}
+
+	}
+
 }
 
 vector<int> getK_Elements_sort(vector<int>& ar, int k){

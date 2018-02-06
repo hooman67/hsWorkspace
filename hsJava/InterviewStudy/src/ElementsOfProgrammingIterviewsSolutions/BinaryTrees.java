@@ -177,6 +177,34 @@ public class BinaryTrees {
 		printPostOrder_Recursive(node.rightChild);
 		System.out.println(node.data);
 	}	
+	/*void printPostOrder_Stack_MyVersionC++(Node<int>* root){
+		stack<Node<int>*>* st = new stack<Node<int>*>();
+		stack<Node<int>*>* st2 = new stack<Node<int>*>();
+
+		Node<int>* cur = root;
+
+		while (!st->empty() || cur != NULL){
+			if (cur != NULL){
+				st->push(cur);
+				st2->push(cur);
+				cur = cur->right;
+			}
+			else{
+				cur = st->top();
+				st->pop();
+				cur = cur->left;
+			}
+		}
+
+		while (!st2->empty()){
+			if (st2->top() != NULL)
+				cout << st2->top()->data << "   ";
+			st2->pop();
+		}
+
+		delete st;
+		delete st2;
+	}*/
 	static void printPostOrder_Stack(BinaryTreeNode<Integer> node) {
 		/**time O(n), space O(log(n)==h), but no visited field needed.
 		 * Problem: Print the elements in a BST in sorted order. So get inorder traversal of bst.
