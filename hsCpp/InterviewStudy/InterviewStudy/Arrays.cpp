@@ -61,6 +61,141 @@ void quickSort(vector<int>& v, int st, int end){
 }
 /*****************END: Array Partitioning *****************/
 
+/************START: Get Median of unsorted array in ************/
+/*Time O(n), space O(1)*/
+template<class T>
+int partition(vector<T>& v, int st, int end, int pivIndex){
+	int p = st, smaller = st;
+	int pivVal = v[pivIndex];
+	swap(v[pivIndex], v[end]);
+
+	while (p < end){
+		if (v[p] < pivVal)
+			swap(v[p++], v[smaller++]);
+		else
+			p++;
+	}
+
+	swap(v[smaller], v[end]);
+	return smaller;
+}
+template<class T>
+int getMed(vector<T>& v){
+	int st = 0, end = v.size() - 1;
+	int k = v.size() / 2;
+	while (st <= end){
+		int pivInd = rand() % (end - st + 1) + st;
+		int newPivInd = partition(v, st, end, pivInd);
+		if (newPivInd == k)
+			return v[newPivInd];
+		else if (newPivInd > k)
+			end = newPivInd - 1;
+		else{
+			st = newPivInd + 1;
+		}
+	}
+	return -1;
+}
+/**************END: Get Median of unsorted array in ************/
+
+
+/********START: Get volume of trapped water given cell heights ********/
+/*Time O(n), space O(1)*/
+int trapRainWater1D(vector<int>& heights){
+	int left = 0, right = heights.size() - 1, leftMax = 0, rightMax = 0;
+	int rainWater = 0;
+
+	while (left < right){
+		if (heights[left] < heights[right]){//care only about left.  Same result if condition on  maxLeft<maxRight 
+			if (heights[left] >= leftMax)
+				leftMax = heights[left];
+			else
+				rainWater += leftMax - heights[left];
+
+			left++;
+		}
+		else{//care only about right
+			if (heights[right] >= rightMax)
+				rightMax = heights[right];
+			else
+				rainWater += rightMax - heights[right];
+
+			right--;
+		}
+	}
+
+	return rainWater;
+}
+
+int trapRainWater2D_hsVer(vector<vector<int>>& heightMap) {
+	/*for n*d input, runTime O(n*d), space O(n*d)
+	*/
+	vector<vector<int>> colMaxTop, colMaxBotom;
+	for (int i = 0; i < heightMap.size(); i++){
+		vector<int> temp;
+		colMaxTop.push_back(temp);
+		colMaxBotom.push_back(temp);
+	}
+
+	for (int i = 0; i < heightMap[0].size(); i++){
+		int colMax = 0;
+		for (int j = 0; j < heightMap.size(); j++){
+			if (heightMap[j][i] > colMax)
+				colMax = heightMap[j][i];
+			colMaxTop[j].push_back(colMax);
+		}
+
+		colMax = 0;
+		for (int j = heightMap.size() - 1; j >= 0; j--){
+			if (heightMap[j][i] > colMax)
+				colMax = heightMap[j][i];
+			colMaxBotom[j].push_back(colMax);
+		}
+	}
+
+	int rainWater = 0;
+	for (int i = 0; i < heightMap.size(); i++){
+		int left = 0, right = heightMap[i].size() - 1, maxLeft = 0, maxRight = 0;
+
+		while (left < right){
+			if (heightMap[i][left] < heightMap[i][right]){
+				if (heightMap[i][left] >= maxLeft)
+					maxLeft = heightMap[i][left];
+				else{
+					int difLeft = maxLeft - heightMap[i][left];
+					int difTop = colMaxTop[i][left] - heightMap[i][left];
+					int difBot = colMaxBotom[i][left] - heightMap[i][left];
+
+					if (difTop > 0 && difBot > 0){
+						rainWater += min(difLeft, min(difTop, difBot));
+					}
+				}
+
+				left++;
+			}
+			else{
+				if (heightMap[i][right] >= maxRight)
+					maxLeft = heightMap[i][right];
+				else{
+					int difRight = maxRight - heightMap[i][right];
+					int difTop = colMaxTop[i][right] - heightMap[i][right];
+					int difBot = colMaxBotom[i][right] - heightMap[i][right];
+
+					if (difTop > 0 && difBot > 0){
+						rainWater += min(difRight, min(difTop, difBot));
+					}
+				}
+
+				right--;
+			}
+		}
+	}
+
+
+	return rainWater;
+}
+/**********END: Get volume of trapped water given cell heights ********/
+
 
 
 /***************START: Sub-array summed to target *****************/
