@@ -1,6 +1,7 @@
 package ElementsOfProgrammingIterviewsSolutions;
 import java.util.*;
 
+
 public class PastInterviewQuestions{
 	/************START: Balance Paranthesis ************/
 	static class BalancePParentheses{
@@ -154,6 +155,9 @@ public class PastInterviewQuestions{
 
 
 	/************START: Sort Pairs to make contiguous path************/
+
+	
+	
 	//goldman's 2nd question
 	static class SortPairs {
 		/**
@@ -178,91 +182,105 @@ public class PastInterviewQuestions{
 		 *          all the segments passed into this function. Feel free to change the
 		 *          Exception type as you think appropriate.
 		 */
-		public static List<Pair<Integer, Integer>> sortSegments(final List<Pair<Integer, Integer>> segments)
-				throws Exception {
-			// Pair is a simple data structure from Commons Lang.
-			// Use getLeft() and getRight() to access the first and second value respectively.
-
-			HashMap<Pair<Integer, Integer>, LinkedList<Pair<Integer,    Integer>>> map = new HashMap<Pair<Integer, Integer>, LinkedList<Pair<Integer,    Integer>>>();
-
-			for(Pair<Integer, Integer> p : segments){
-				for(Pair<Integer, Integer> pp : segments){
-					if(p.getRight() == pp.getLeft()){
-						if(!map.containsKey(p))
-							map.put(p, new LinkedList<Pair<Integer,Integer>>());      map.get(p).add(pp);
-					}
-				}
+		
+		static Pair<Integer, Integer>[] makeContig(Pair<Integer, Integer>[] ar){
+			ArrayList<Pair<Integer, Integer>> out = null;
+			
+			while(out == null){
+				out = new ArrayList<Pair<Integer, Integer>>();
+				for(Pair<Integer, Integer> p : ar)
+					out.add(p);
+				
+				Collections.shuffle(out);
+				
+				out = div(out);
+			}
+			
+			Pair<Integer, Integer>[] outar = new Pair[out.size()];
+			int i = 0;
+			for(Pair<Integer, Integer> p : out)
+				outar[i++] = p;
+			
+			return outar;
+		}
+		static ArrayList<Pair<Integer, Integer>> merg(ArrayList<Pair<Integer, Integer>> ar1, ArrayList<Pair<Integer, Integer>> ar2){
+			if(ar1 == null || ar2 == null)
+				return null;
+			
+			ArrayList<Pair<Integer, Integer>> out = null;
+			
+			if(ar1.get(ar1.size()-1).second == ar2.get(0).first){
+				out = new ArrayList<Pair<Integer, Integer>>();
+				
+				
+				for(Pair<Integer, Integer> p : ar1)
+					out.add(p);
+				
+				for(Pair<Integer, Integer> p : ar2)
+					out.add(p);
+			}
+			
+			else if(ar2.get(ar2.size()-1).second == ar1.get(0).first){
+				out = new ArrayList<Pair<Integer, Integer>>();
+				
+				
+				for(Pair<Integer, Integer> p : ar2)
+					out.add(p);
+				
+				for(Pair<Integer, Integer> p : ar1)
+					out.add(p);
 			}
 
-			for(Pair<Integer, Integer> key : map.keySet()){
-				Pair<Integer,Integer> last = map.get(key).getLast();
-
-				for(Pair<Integer, Integer> key2 : map.keySet()){
-					if(last.getRight() == key2.getLeft()){
-						map.get(key).add(key2);
-						for(Pair<Integer, Integer> ppp : map.get(key2))
-							map.get(key).add(ppp);
-					}
-				}
-
-
-
-				for(Pair<Integer, Integer> key3 : map.keySet()){
-					System.out.println(map.get(key3));
-				}   
-
+			
+			return out;
+		}
+		static ArrayList<Pair<Integer, Integer>> div(ArrayList<Pair<Integer, Integer>> ar){
+			if(ar == null || ar.size() < 2){
+				return ar;
 			}
-
-
-
-			throw new UnsupportedOperationException("Not implemented yet.");
-		}
-
-		public static boolean testBasicSort() throws Exception {
-			List<Pair<Integer, Integer>> jumbledSegments = new ArrayList<>();
-			jumbledSegments.add(new Pair<Integer, Integer>(4, 5));
-			jumbledSegments.add(new Pair<Integer, Integer>(9, 4));
-			jumbledSegments.add(new Pair<Integer, Integer>(5, 1));
-			jumbledSegments.add(new Pair<Integer, Integer>(11, 9));
-
-			List<Pair<Integer, Integer>> actualContinuousPath = sortSegments(jumbledSegments);
-
-			List<Pair<Integer, Integer>> expectedContinuousPath = new ArrayList<>();
-			expectedContinuousPath.add(new Pair<Integer, Integer>(11, 9));
-			expectedContinuousPath.add(new Pair<Integer, Integer>(9, 4));
-			expectedContinuousPath.add(new Pair<Integer, Integer>(4, 5));
-			expectedContinuousPath.add(new Pair<Integer, Integer>(5, 1));
-
-			return expectedContinuousPath.equals(actualContinuousPath);
-		}
-
-		public static boolean doTestsPass() throws Exception {
-			boolean allPass = true;
-			allPass = allPass && testBasicSort();
-
-			return allPass;
-		}
-
-		public static void main(String[] args) throws Exception {
-			if(doTestsPass()) {
-				System.out.println("All tests pass");
-			} else {
-				System.out.println("Some tests fail");
-			}
-		}
-	}
-
-	//helper class
-	static class Pair<T, N>{
-		T left;
-		N right;
-		Pair(T l, N r){
-			left = l;
-			right = r;
+			
+			ArrayList<Pair<Integer, Integer>> ar1 = new ArrayList<Pair<Integer, Integer>>();
+			ArrayList<Pair<Integer, Integer>> ar2 = new ArrayList<Pair<Integer, Integer>>();
+			
+			for(int i = 0; i < ar.size()/2; i++)
+				ar1.add(ar.get(i));
+			for(int i = ar.size()/2; i < ar.size(); i++)
+				ar2.add(ar.get(i));
+			
+			ArrayList<Pair<Integer, Integer>> arRet1 = div(ar1);
+			ArrayList<Pair<Integer, Integer>> arRet2 = div(ar2);
+			return merg(arRet1, arRet2);
 		}
 		
-		public N getRight(){return right;};
-		public T getLeft(){return left;};
+		public static void main(String[] args){
+			
+			Pair<Integer, Integer>[] ar = new Pair[4];
+			
+			ar[0] = new Pair<Integer, Integer>(4, 5);
+			ar[1] = new Pair<Integer, Integer>(9, 4);
+			ar[2] = new Pair<Integer, Integer>(5, 1);
+			ar[3] = new Pair<Integer, Integer>(11, 9);
+				
+			Pair<Integer, Integer>[] p3 = makeContig(ar);
+			
+			for(Pair<Integer, Integer> p : p3)
+				p.print();
+		}
+	}
+	
+	//helper Pair class
+	static class Pair<T, K>{
+		T first;
+		K second;
+		
+		public Pair(T first, K second){
+			this.first = first;
+			this.second = second;
+		}
+
+		public void print(){
+			System.out.println(first + "  " + second);
+		}
 	}
 	/**************END: Sort Pairs to make contiguous path************/
 
