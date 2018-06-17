@@ -1,4 +1,75 @@
 #include "hsGlobolHeader.h"
+
+/***************START: Min # of bits to flip *****************/
+/**
+Problem: Given a string containing 0’s and 1’s. The task is to find out minimum number of bits to be flipped such that 0’s and 1’s will be alternative.
+Solution: build the two versions of alternating 0 and 1s you could have, see which one is closer to the given string.
+time O(n), space O(n) 
+*/
+string getAlternating0And1(int len, char firstElement) {
+	string s;
+	s.push_back(firstElement);
+
+	for (int i = 1; i < len; i++) {
+		if (s[i - 1] == '1')
+			s.push_back('0');
+		else
+			s.push_back('1');
+	}
+
+	return s;
+}
+int countMatchingElements(string s1, string s2) {
+	int count = 0;
+
+	for (int i = 0; i < s1.size(); i++) {
+		if (s1[i] == s2[i])
+			count++;
+	}
+
+	return count;
+}
+int getMinBitsToFlip(string s) {
+	int dist1 = countMatchingElements(s, getAlternating0And1(s.size(), '0'));
+	int dist2 = countMatchingElements(s, getAlternating0And1(s.size(), '1'));
+
+	return dist1 > dist2 ? (s.size() - dist1) : (s.size() - dist2);
+}
+/*****************END: Min # of bits to flip *****************/
+
+
+
+/***************START: Find the # with the most number of zeros *****************/
+int count0s(int a) {
+	string s = to_string(a);
+
+	int count = 0;
+	for (char c : s) {
+		if (c == '0')
+			count++;
+	}
+
+	return count;
+}
+int getNumberWithMost0s(vector<int>& v) {
+	int mostZeros = numeric_limits<int>::min();
+	int nbWithMostZeros = -1;
+
+	for (int a : v) {
+		if (count0s(a) > mostZeros) {
+			mostZeros = count0s(a);
+			if (a > nbWithMostZeros)
+				nbWithMostZeros = a;
+		}
+	}
+
+	return nbWithMostZeros;
+}
+/*****************END: Find the # with the most number of zeros *****************/
+
+
+
+/***************START: Reversing Strings *****************/
 //s.size() doestn count the NULL. So u have to use char*. to even see the null. Then to not flip it u have to use 
 // i < (length of char array - 1 )/2   and index [length-2-i]
 void revChar( string& s, int st, int en ){  //Reverse the chars in a string from st to en (en is length not index (its index of the last elem + 1) )
@@ -17,7 +88,11 @@ void revWord(string& s){//Reverse the words in a string.First reverse the charac
 		revChar(s,j,i);
 	}
 }
+/*****************END: Reversing Strings *****************/
 
+
+
+/***************START: String2Int and Int2String *****************/
 int Str2Int(string s){
 	int out = 0;
 	int a = 0;
@@ -63,30 +138,11 @@ string Int2Str(int a ){  //this had a bug, i fixed it if its  a > 1  then u cant
 	}
 	return out;
 }
-string RemCharsInBfromA( string a, string b){ // O(n) runt time  and memory (in place) so O(1)
-	int des = 0;                             //Remove the chars given in b from a
-	unordered_map<char,int> my;
-	for( int i =0; i < b.length();i++)
-		my.insert(make_pair(b[i],1));
-	for( int i=0; i < a.length(); i++ ){
-		if(my[a[i]]!=1)
-			a[des++]= a[i];			
-			
-	}
-	return a.substr(0,des);
-}
-char FirstUniqChar(string s){ //O(n)  Returns the first none repeated char in a string 
-	unordered_map<char,int> my;   //can use arrays for this too if we use the ascii code of each char as index. 
-	for( int i = 0; i<s.length(); i ++ ){  // but we have to allocated a huge array that can take every char.
-		if( !(my.insert(make_pair(s[i],0)).second))
-			my[s[i]]++;
-	}
-	for( int i = 0; i<s.length();i++ ){
-		if( my[s[i]] == 0 )
-			return s[i];
-	}
-}
+/*****************END: String2Int and Int2String *****************/
 
+
+
+/***************START: Permutations of different condistions from chars in a string *****************/
 //print all the permutations (any length) of a given string: uses myf() which is similar to perm and nChoseK
 void allPermutations(string in){
 	for (int i = 1; i < in.size() + 1; i++){
@@ -160,3 +216,33 @@ void select(int start, string in, string out){ //select any # of chars from stri
 		out = out.substr(0, out.size() - 1);
 	}
 }
+/*****************END: Permutations of different condistions from chars in a string *****************/
+
+
+
+/***************START: Easy String questions *****************/
+string RemCharsInBfromA(string a, string b) { // O(n) runt time  and memory (in place) so O(1)
+	int des = 0;                             //Remove the chars given in b from a
+	unordered_map<char, int> my;
+	for (int i = 0; i < b.length(); i++)
+		my.insert(make_pair(b[i], 1));
+	for (int i = 0; i < a.length(); i++) {
+		if (my[a[i]] != 1)
+			a[des++] = a[i];
+
+	}
+	return a.substr(0, des);
+}
+
+char FirstUniqChar(string s) { //O(n)  Returns the first none repeated char in a string 
+	unordered_map<char, int> my;   //can use arrays for this too if we use the ascii code of each char as index. 
+	for (int i = 0; i<s.length(); i++) {  // but we have to allocated a huge array that can take every char.
+		if (!(my.insert(make_pair(s[i], 0)).second))
+			my[s[i]]++;
+	}
+	for (int i = 0; i<s.length(); i++) {
+		if (my[s[i]] == 0)
+			return s[i];
+	}
+}
+/*****************END: Easy String questions *****************/

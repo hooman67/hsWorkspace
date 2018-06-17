@@ -397,6 +397,55 @@ int longestIncreasingSubArray(vector<int>& v){
 
 
 
+/***************START:shortest Unordered Sub-array***********/
+int getMinLengthUnorderedSubArray(vector<int>& v) {
+	int minLen = numeric_limits<int>::max();
+	int direction = 0;
+	int lenCounter = 2;
+
+	for (int i = 0; i < v.size() - 1; i++) {
+		if (v[i] < v[i + 1]) {
+
+			if (direction == -1) {
+				direction = 1;
+				lenCounter++;
+
+				if (lenCounter < minLen)
+					minLen = lenCounter;
+
+				lenCounter = 2;
+			}
+
+			else {
+				direction = 1;
+				lenCounter++;
+			}
+		}
+		else {
+
+			if (direction == 1) {
+				direction = -1;
+				lenCounter++;
+
+				if (lenCounter < minLen)
+					minLen = lenCounter;
+
+				lenCounter = 2;
+			}
+
+			else {
+				direction = -1;
+				lenCounter++;
+			}
+		}
+	}
+
+	return minLen == numeric_limits<int>::max() ? 0 : minLen;
+}
+/*****************END:Longest Increasing Sub-array***********/
+
+
+
 /******************START: MaxDifferences************************/
 int maxDifference(int ar[], int arLen){
 	int largestDif = numeric_limits<int>::min();
