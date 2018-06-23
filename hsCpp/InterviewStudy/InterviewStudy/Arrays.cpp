@@ -99,110 +99,15 @@ int getMed(vector<T>& v){
 /**************END: Get Median of unsorted array in ************/
 
 
-/********START: Get volume of trapped water given cell heights ********/
-/*Time O(n), space O(1)*/
-int trapRainWater1D(vector<int>& heights){
-	int left = 0, right = heights.size() - 1, leftMax = 0, rightMax = 0;
-	int rainWater = 0;
-
-	while (left < right){
-		if (heights[left] < heights[right]){//care only about left.  Same result if condition on  maxLeft<maxRight 
-			if (heights[left] >= leftMax)
-				leftMax = heights[left];
-			else
-				rainWater += leftMax - heights[left];
-
-			left++;
-		}
-		else{//care only about right
-			if (heights[right] >= rightMax)
-				rightMax = heights[right];
-			else
-				rainWater += rightMax - heights[right];
-
-			right--;
-		}
-	}
-
-	return rainWater;
-}
-
-int trapRainWater2D_hsVer(vector<vector<int>>& heightMap) {
-	/*for n*d input, runTime O(n*d), space O(n*d)
-	*/
-	vector<vector<int>> colMaxTop, colMaxBotom;
-	for (int i = 0; i < heightMap.size(); i++){
-		vector<int> temp;
-		colMaxTop.push_back(temp);
-		colMaxBotom.push_back(temp);
-	}
-
-	for (int i = 0; i < heightMap[0].size(); i++){
-		int colMax = 0;
-		for (int j = 0; j < heightMap.size(); j++){
-			if (heightMap[j][i] > colMax)
-				colMax = heightMap[j][i];
-			colMaxTop[j].push_back(colMax);
-		}
-
-		colMax = 0;
-		for (int j = heightMap.size() - 1; j >= 0; j--){
-			if (heightMap[j][i] > colMax)
-				colMax = heightMap[j][i];
-			colMaxBotom[j].push_back(colMax);
-		}
-	}
-
-	int rainWater = 0;
-	for (int i = 0; i < heightMap.size(); i++){
-		int left = 0, right = heightMap[i].size() - 1, maxLeft = 0, maxRight = 0;
-
-		while (left < right){
-			if (heightMap[i][left] < heightMap[i][right]){
-				if (heightMap[i][left] >= maxLeft)
-					maxLeft = heightMap[i][left];
-				else{
-					int difLeft = maxLeft - heightMap[i][left];
-					int difTop = colMaxTop[i][left] - heightMap[i][left];
-					int difBot = colMaxBotom[i][left] - heightMap[i][left];
-
-					if (difTop > 0 && difBot > 0){
-						rainWater += min(difLeft, min(difTop, difBot));
-					}
-				}
-
-				left++;
-			}
-			else{
-				if (heightMap[i][right] >= maxRight)
-					maxLeft = heightMap[i][right];
-				else{
-					int difRight = maxRight - heightMap[i][right];
-					int difTop = colMaxTop[i][right] - heightMap[i][right];
-					int difBot = colMaxBotom[i][right] - heightMap[i][right];
-
-					if (difTop > 0 && difBot > 0){
-						rainWater += min(difRight, min(difTop, difBot));
-					}
-				}
-
-				right--;
-			}
-		}
-	}
-
-
-	return rainWater;
-}
-/**********END: Get volume of trapped water given cell heights ********/
-
-
 
 /***************START: Sub-array summed to target *****************/
+//First one is important:
 void findSubArrayWithMaxSum(int arr[], int size){
 	/**Time O(n)  Space O(1)
 	*
-	* Given an array of Pos and Neg integers. Return the subArray with largest sum.
+	* Prob: Given an array of Pos and Neg integers. Return the subArray with largest sum.
+	* Sol: The only time you wanna change the start of your subArray, is when the current element, is bigger that the sum so far.
+	*  So you can keep adding elements regarless of their values (you wanna visit each element at least ones), and you only have to decide when you wanna restart your subarray.
 	*/
 	int max_ending_here, best_max_so_far, curStart, best_start, best_end;
 	curStart = best_start = best_end = 0;
@@ -466,6 +371,7 @@ int maxDifference(int ar[], int arLen){
 /********************END: MaxDifferences************************/
 
 
+
 /*******************START: return k biggest elements*******************/
 int partLg(vector<int>& v, int pivInd, int beg, int end){
 	int piv = v[pivInd];
@@ -532,6 +438,106 @@ vector<int> getK_Elements_heap(vector<int>& ar, int k){
 /*********************END: return k biggest elements*******************/
 
 
+
+/********START: Get volume of trapped water given cell heights ********/
+/*Time O(n), space O(1)*/
+int trapRainWater1D(vector<int>& heights) {
+	int left = 0, right = heights.size() - 1, leftMax = 0, rightMax = 0;
+	int rainWater = 0;
+
+	while (left < right) {
+		if (heights[left] < heights[right]) {//care only about left.  Same result if condition on  maxLeft<maxRight 
+			if (heights[left] >= leftMax)
+				leftMax = heights[left];
+			else
+				rainWater += leftMax - heights[left];
+
+			left++;
+		}
+		else {//care only about right
+			if (heights[right] >= rightMax)
+				rightMax = heights[right];
+			else
+				rainWater += rightMax - heights[right];
+
+			right--;
+		}
+	}
+
+	return rainWater;
+}
+
+int trapRainWater2D_hsVer(vector<vector<int>>& heightMap) {
+	/*for n*d input, runTime O(n*d), space O(n*d)
+	*/
+	vector<vector<int>> colMaxTop, colMaxBotom;
+	for (int i = 0; i < heightMap.size(); i++) {
+		vector<int> temp;
+		colMaxTop.push_back(temp);
+		colMaxBotom.push_back(temp);
+	}
+
+	for (int i = 0; i < heightMap[0].size(); i++) {
+		int colMax = 0;
+		for (int j = 0; j < heightMap.size(); j++) {
+			if (heightMap[j][i] > colMax)
+				colMax = heightMap[j][i];
+			colMaxTop[j].push_back(colMax);
+		}
+
+		colMax = 0;
+		for (int j = heightMap.size() - 1; j >= 0; j--) {
+			if (heightMap[j][i] > colMax)
+				colMax = heightMap[j][i];
+			colMaxBotom[j].push_back(colMax);
+		}
+	}
+
+	int rainWater = 0;
+	for (int i = 0; i < heightMap.size(); i++) {
+		int left = 0, right = heightMap[i].size() - 1, maxLeft = 0, maxRight = 0;
+
+		while (left < right) {
+			if (heightMap[i][left] < heightMap[i][right]) {
+				if (heightMap[i][left] >= maxLeft)
+					maxLeft = heightMap[i][left];
+				else {
+					int difLeft = maxLeft - heightMap[i][left];
+					int difTop = colMaxTop[i][left] - heightMap[i][left];
+					int difBot = colMaxBotom[i][left] - heightMap[i][left];
+
+					if (difTop > 0 && difBot > 0) {
+						rainWater += min(difLeft, min(difTop, difBot));
+					}
+				}
+
+				left++;
+			}
+			else {
+				if (heightMap[i][right] >= maxRight)
+					maxLeft = heightMap[i][right];
+				else {
+					int difRight = maxRight - heightMap[i][right];
+					int difTop = colMaxTop[i][right] - heightMap[i][right];
+					int difBot = colMaxBotom[i][right] - heightMap[i][right];
+
+					if (difTop > 0 && difBot > 0) {
+						rainWater += min(difRight, min(difTop, difBot));
+					}
+				}
+
+				right--;
+			}
+		}
+	}
+
+
+	return rainWater;
+}
+/**********END: Get volume of trapped water given cell heights ********/
+
+
+
 /***START: Interleave categories *********/
 void mergeCategories(vector<string>& vect){
 	/*time O(n) space O(1)
@@ -578,6 +584,68 @@ void mergeCategories(vector<string>& vect){
 	}
 }
 /*****END: Interleave categories *********/
+
+
+
+/*************START: Fill a napsack with rocks that have weights and values ***************/
+vector<int> values;
+vector<int> weights;
+
+bool comp(int a, int b) {
+	return values[a] < values[b];
+}
+
+int getTotalPossibleValueInNapSack(int maxWeight) {
+	vector<int> perm;
+	for (int i = 0; i < values.size(); i++)
+		perm.push_back(i);
+
+	sort(perm.begin(), perm.end(), comp);
+
+	int totalVal = 0;
+	int totalWeight = 0;
+	int i = values.size() - 1;
+	while (totalWeight < maxWeight && i > 0) {
+		if ((weights[i] + totalWeight) <= maxWeight) {
+			totalVal += values[i];
+			totalWeight += weights[i];
+		}
+
+		i--;
+	}
+
+	return totalVal;
+}
+/***************END: Fill a napsack with rocks that have weights and values ***************/
+
+
+
+/*************START: Search a sorted Matrix in Linear time ***************/
+/*Time: O(m+n), space O(1)*/
+int binSearch(vector<int> v, int t, int start, int end) {
+	if (end < start)
+		return -1;
+
+	int mid = (end - start) / 2 + start;
+
+	if (v[mid] == t)
+		return mid;
+	else if (v[mid] < t) {
+		return binSearch(v, t, mid + 1, end);
+	}
+	else {
+		return binSearch(v, t, start, mid - 1);
+	}
+}
+int searchMatrix(vector<vector<int>> v, int t) {
+	int targetRow = 0;
+	while (v[targetRow][v[0].size() - 1] < t && targetRow < v.size() - 1)
+		targetRow++;
+
+	cout << "target's row: " << targetRow << "\n";
+	return binSearch(v[targetRow], t, 0, v[targetRow].size() - 1);
+}
+/***************END: Search a sorted Matrix in Linear time ***************/
 
 
 
