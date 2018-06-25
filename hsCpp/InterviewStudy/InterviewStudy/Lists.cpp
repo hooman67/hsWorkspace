@@ -71,6 +71,41 @@ Node<T>* mergeLists(Node<T>* a, Node<T>* b){
 
 	return outHead;
 }
+
+Node<int>* mergeLists_shorterByHs(Node<int>* l1, Node<int>* l2) {
+	Node<int>* newHead;
+	Node<int>* p;
+	if (l1->data < l2->data) {
+		newHead = l1;
+		p = l1;
+		l1 = l1->next;
+	}
+	else {
+		newHead = l2;
+		p = l2;
+		l2 = l2->next;
+	}
+
+	while (l1 != NULL && l2 != NULL) {
+		if (l1->data < l2->data) {
+			p->next = l1;
+			l1 = l1->next;
+		}
+		else {
+			p->next = l2;
+			l2 = l2->next;
+		}
+
+		p = p->next;
+	}
+
+	if (l1 != NULL)
+		p->next = l1;
+	if (l2 != NULL)
+		p->next = l2;
+
+	return newHead;
+}
 /*****END: Merge two sorted lists*********/
 
 
@@ -92,6 +127,52 @@ Node<T>* reverseList(Node<T>* root){
 	return pre;
 }
 /*****END: Reverse Singly LinkedList*********/
+
+
+
+/*********START: Detect presense, length, and start of a cycle in singlyLinkedList*********/
+void detectCycles(Node<int>* n) {
+	if (n == NULL || n->next == NULL)
+		return;
+
+	Node<int>* slow = n, *fast = n->next->next;
+
+	while (fast != NULL && fast != slow) {
+		slow = slow->next;
+		fast = fast->next;
+
+		if (fast != NULL)
+			fast = fast->next;
+	}
+
+	if (fast == NULL)
+		return; // There is no cycle
+
+				//Detect length of the cycle
+	int len = 1;
+	slow = slow->next;
+	while (slow != fast) {
+		slow = slow->next;
+		len++;
+	}
+
+	//Detect start of the cycle
+	slow = n; fast = n;
+	for (int i = 0; i < len; i++) {
+		fast = fast->next;
+	}
+
+	while (slow != fast) {
+		slow = slow->next;
+		fast = fast->next;
+	}
+
+
+	cout << "Cycle of length:  " << len << "   was detected, starting at node:  " << slow->data << "\n";
+
+	return;
+}
+/***********END: Detect presense, length, and start of a cycle in singlyLinkedList*********/
 
 
 
