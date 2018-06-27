@@ -1,5 +1,63 @@
 #include "hsGlobolHeader.h"
 
+
+
+/*************START: Detecting Friends Circles*************/
+//for each student in the class you have a string “YYNNYN” that says whether that person is friends with each other students or not.
+class Gn {
+public:
+	int id;
+	vector<Gn*> friends;
+
+	Gn(int id) {
+		this->id = id;
+	}
+
+	bool visited = false;
+};
+
+bool isCycle(Gn* root) {
+	root->visited = true;
+	for (Gn* n : root->friends) {
+		if (n->visited)
+			return true;
+		else {
+			if (isCycle(n))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+int main() {
+	Gn* n0 = new Gn(0);
+	Gn* n1 = new Gn(1);
+	Gn* n2 = new Gn(2);
+	Gn* n3 = new Gn(3);
+	Gn* n4 = new Gn(4);
+
+	n0->friends.push_back(n1);
+	n0->friends.push_back(n2);
+	n0->friends.push_back(n3);
+
+	n3->friends.push_back(n4);
+	n4->friends.push_back(n2);
+	n2->friends.push_back(n0);
+
+	cout << isCycle(n0) << "\n";
+}
+/***************END: Detecting Friends Circles*************/
+
+
+
+
+
+
+
+
+
+
 //all using adj list:
 bool isthreCycleDFS(int v, int par){ //return true if there is a cycle in the graph
 	for (auto p = adj[v].begin(); p != adj[v].end(); p++){
