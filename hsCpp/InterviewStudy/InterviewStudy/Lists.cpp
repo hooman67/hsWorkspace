@@ -212,6 +212,20 @@ bool isPolindrome(Node<T>* root){
 
 	return true;
 }
+
+bool isInPalyndrome(int b) {
+	int a = b;
+	int rev = 0;
+	while (a >= 1) {
+		int rem = a % 10;
+		rev = 10 * rev + rem;
+		a = (a - rem) / 10;
+	}
+
+	cout << "\n" << rev << "\n";
+
+	return rev == b;
+}
 /***********END: Detect if singlyLinkedLists is Palindrome*********/
 
 
