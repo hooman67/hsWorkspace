@@ -352,7 +352,7 @@ int getMinLengthUnorderedSubArray(vector<int>& v) {
 
 
 /******************START: MaxDifferences************************/
-int getMaxProfitSingleTx_OrLargestDif(vector<int>& prices){
+int maxProfitFrom1Tx_OrLargestDif(vector<int>& prices){
 	/*Problem: return the maximum profit you can make with 
 	a single transaction. Or find the largest difference
 	between any subsequent elements.
@@ -368,38 +368,95 @@ int getMaxProfitSingleTx_OrLargestDif(vector<int>& prices){
 	return largestDif;
 }
 
-int getMaxProfit2Transactions(vector<int>& prices){
+int maxProfitFrom2Txs(vector<int>& v){
 	/*Problem: return the maximum profit you can make with
 	two transaction if you can only hold on to a single
-	stock at a time. This is not the same as find the 
+	stock at a time. This is not the same as find the
 	2 largest differences between any subsequent elements.
 	*/
-	int largestDif1 = 0; //we are not stupid to sell at a loss so this can never be below 0.
-	int largestDif2 = 0;
-	int smallestElement1 = numeric_limits<int>::max();
-	int smallestElement2 = numeric_limits<int>::max();
+	if (v.empty()) return 0;
 
-	for (int i : prices){
-		smallestElement1 = min(smallestElement1, i);
-		largestDif1 = max(largestDif1, i - smallestElement1);
+	int leastBuy1CostSoFar = numeric_limits<int>::max(), leastBuy2CostSoFar = numeric_limits<int>::max();
+	int maxTx1ProfitSoFar = 0, maxFinalProfitSoFar = 0;
 
-		//the smaller the current price, and the larger the previous profits, the likelier we are to buy at this price. 
-		smallestElement2 = min(smallestElement2, i - largestDif1);
-		largestDif2 = max(largestDif2, i - smallestElement2);
+	for (int todaysPrice : v){
+
+		//How much do I have to pay to make buy 1 today ?
+		int costToMakeBuy1Today = todaysPrice;
+		if (costToMakeBuy1Today < leastBuy1CostSoFar)
+			leastBuy1CostSoFar = costToMakeBuy1Today;  //making a buy today is better than all the days before
+
+		//How much would I make if I make sell 1 today ?
+		int profitIfSell1Today = todaysPrice - leastBuy1CostSoFar;
+		if (profitIfSell1Today > maxTx1ProfitSoFar)
+			maxTx1ProfitSoFar = profitIfSell1Today; //selling today gives beter profit than all the days before
+
+		//How much do I have to pay to make buy 2 today, knowing that my maxTx1ProfitSoFar will be locked now. 
+		//since I must have sold my buy 1 at some previously seen price (which created max profit) to buy2 today.
+		int costToMakeBuy2Today = todaysPrice - maxTx1ProfitSoFar;
+		if (costToMakeBuy2Today < leastBuy2CostSoFar)
+			leastBuy2CostSoFar = costToMakeBuy2Today;
+
+		//What is the total profit I have made from both my transactions if I make sell 2 today ?
+		//Profits from first Tx are subtracted from the cost of buy2 so they are implicitly added here.
+		int totalProfitIfSell2Today = todaysPrice - leastBuy2CostSoFar;
+		if (totalProfitIfSell2Today > maxFinalProfitSoFar)
+			maxFinalProfitSoFar = totalProfitIfSell2Today;
 	}
 
-	return largestDif2;
+	return maxFinalProfitSoFar;
 }
 
-int getMaxProfitXTransactionsHoldOneStockAtATime(vector<int>& prices) {
+int maxProfitFromAnyNumberOfTxs(vector<int>& v, int maxNumberOfPossibleTxs){
+	/*Problem: return the maximum profit you can make with any number of transactions
+	less than or equal to the maxNumberOfPossibleTxs specified.
+	Note that the minimum number of txs is 1. (i.e. 1 buy and sell). The maxNumberOfPossibleTxs
+	given n prices is n-1 (in practice we don't both buy and sell on the first day) or n (in theory).
+	But specifying any number above this has no effect, so thre is no upper limit on maxNumberOfPossibleTxs
+	*/
+	if (v.empty()) return 0;
+
+	/*The only reason we do the + 1 stuff is to make the same code work for both
+	the case with only 1 transaction (buy and sell) and higher number of transactions.
+	i.e to add the previous profits, we have to start our indexing of txs from 1. For the case,
+	of only 1 transaction, the indexing will break.
+	*/
+	int totalTxsPlusHistory = maxNumberOfPossibleTxs + 1;
+
+	vector<int> leastBuyCostAtEachNumberOfTxsSoFar(totalTxsPlusHistory, numeric_limits<int>::max());
+	vector<int> maxTotalProfitAtEachNumberOfTxsSoFar(totalTxsPlusHistory, 0);
+
+	for (int todaysPrice : v){
+		for (int tx = 1; tx < totalTxsPlusHistory; tx++){
+
+			//I have to subtract all the profits that I have made from all previous transactions 
+			//from the cost of making a buy today. 
+			int costToMakeABuyToday = todaysPrice - maxTotalProfitAtEachNumberOfTxsSoFar[tx - 1];
+			if (costToMakeABuyToday < leastBuyCostAtEachNumberOfTxsSoFar[tx])
+				leastBuyCostAtEachNumberOfTxsSoFar[tx] = costToMakeABuyToday;
+
+
+			//What is the total profit I have made from all my previous transactions if I make a sell today ?
+			//Profits from previous Txs are subtracted from the cost of making last buy so they are implicitly added here.
+			int totalProfitIfMakeASellToday = todaysPrice - leastBuyCostAtEachNumberOfTxsSoFar[tx];
+			if (totalProfitIfMakeASellToday > maxTotalProfitAtEachNumberOfTxsSoFar[tx])
+				maxTotalProfitAtEachNumberOfTxsSoFar[tx] = totalProfitIfMakeASellToday;
+		}
+
+	}
+
+	return maxTotalProfitAtEachNumberOfTxsSoFar[maxNumberOfPossibleTxs];
+}
+
+int maxProfitFromAnyNumberOfTxs_justShorterCode(vector<int>& prices) {
 	/*Problem: return the maximum profit you can make with
 	any number of transactions if you can only hold on to a single
 	stock at a time. Note that given n prices the maximum number of
-	transactions is n - 1. 
+	transactions is n. 
 	*/
 	if (prices.empty())  return 0;
 
-	int n = prices.size();//there are at most n-1 transactions
+	int n = prices.size();//there are at most n transactions
 	vector<int> largestDifAr(n, 0);
 	vector<int> minElementAr(n, numeric_limits<int>::max());
 
